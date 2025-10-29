@@ -1,0 +1,11 @@
+@keyframes dot-blink {
+    0%, 20% {
+        background-color: #fff;
+    }
+    50% {
+        background-color: #0026ff;
+    }
+    100% {
+        background-color: #fff;
+    }
+}
