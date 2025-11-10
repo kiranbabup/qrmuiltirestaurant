@@ -14,11 +14,11 @@ import CloseIcon from "@mui/icons-material/Close";
 import { useState } from "react";
 import "./style.css";
 import { dotContainerStyle, dotStyle } from "../data/styles";
+import { useNavigate } from "react-router-dom";
 
 const ContactModal = ({
   contactModal,
   setContactModal,
-  setShortModal,
   name,
   setName,
   phone,
@@ -28,8 +28,10 @@ const ContactModal = ({
   setSuccessSnackbarOpen,
   setsnackbarContent,
   setSnackbarMode,
+  paybillHandle,
 }) => {
   const [phoneError, setPhoneError] = useState("");
+  const navigate = useNavigate();
 
   // Add validation function
   const validatePhone = (value) => {
@@ -51,11 +53,12 @@ const ContactModal = ({
 
   const onContactHandle = () => {
     setLoading(true);
-    // Validate name and phone
+
     if (name.trim().length < 4) {
       setSnackbarMode("error");
       setsnackbarContent("Name must be at least 4 characters long.");
       setSuccessSnackbarOpen(true);
+      setLoading(false);
       return;
     }
 
@@ -63,19 +66,37 @@ const ContactModal = ({
       setSnackbarMode("error");
       setsnackbarContent("Mobile number should be 10 digits.");
       setSuccessSnackbarOpen(true);
+      setLoading(false);
       return;
     }
 
-    // Store contact info in local storage
-    const contactInfo = { name, phone };
-    localStorage.setItem("contactInfo", JSON.stringify(contactInfo));
+    // Save contact
+    localStorage.setItem("contactInfo", JSON.stringify({ name, phone }));
+
+    // ✅ Re-check active status from localStorage right now
+    let activeExists = false;
+    try {
+      const raw = localStorage.getItem("totalOrdersData");
+      const list = raw ? JSON.parse(raw) : [];
+      activeExists =
+        Array.isArray(list) && list.some((o) => o?.active === true);
+    } catch {}
+
     setSnackbarMode("success");
     setsnackbarContent("Information saved successfully");
     setSuccessSnackbarOpen(true);
     setLoading(false);
-    // Close the modal and open the short modal
+
     onCloseRegisterModal();
-    setShortModal(true);
+
+    if (!activeExists) {
+      // Create the first active order
+      paybillHandle();
+      return;
+    }
+
+    // If an active order already exists, just go to bill
+    navigate("/bill");
   };
 
   return (
@@ -125,6 +146,15 @@ const ContactModal = ({
               sx={{ mt: 1 }}
               fullWidth
               required
+              inputProps={{
+                maxLength: 25,
+              }}
+              onKeyPress={(e) => {
+                // Prevent typing letters
+                if (/[0-9]/.test(e.key)) {
+                  e.preventDefault();
+                }
+              }}
             />
           </Box>
           <Box>
@@ -169,6 +199,8 @@ const ContactModal = ({
                     </span>
                   </Box>
                 ),
+              }}
+              inputProps={{
                 inputMode: "numeric",
                 pattern: "[0-9]*",
                 maxLength: 10,

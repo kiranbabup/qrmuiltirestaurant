@@ -2,13 +2,14 @@ import { Navigate, Outlet, useLocation } from "react-router-dom";
 import LsService, { storageKey } from "../services/localstorage";
 
 const roleDefaultPaths = {
-  admin: "/super-admin",
-  store: "/store-manager",
-  cashier: "/cashier-panel",
+  super_admin: "/super_admin",
+  restaurant_admin: "/restaurant_admin",
+  manager:"/manager",
+  staff:"/staff",
+  kitchen_chef:"/kitchen_staff",
 };
 
 const ProtectedRoute = ({ loggedinUserRole }) => {
-  const location = useLocation();
   const userLoginStatus = LsService.getItem(storageKey);
 
   // CASE 1: Not logged in at all

@@ -1,25 +1,24 @@
-import React from "react";
 import { Box, Button, Typography } from "@mui/material";
 import { useLocation, useNavigate } from "react-router-dom";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import WindowSharpIcon from "@mui/icons-material/WindowSharp";
 import AssignmentOutlinedIcon from "@mui/icons-material/AssignmentOutlined";
 import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
+import { theamOrange } from "../data/contents/items";
+import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
 
 const FooterTab = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const isActiveRoute = (route) => location.pathname === route;
-  const activeColor = "#ff8a2b";
 
   // store icon components (not elements) so we can pass sx props
   const footerButtons = [
-    { label: "Home", icon: HomeOutlinedIcon, route: "/page1" },
-    { label: "Menu", icon: WindowSharpIcon, route: "/page2" },
-    // { label: "Orders", icon: AssignmentOutlinedIcon, route: "/orders" },
-    { label: "Orders", icon: AssignmentOutlinedIcon, route: "/page3" },
-    { label: "Pay Bill", icon: ReceiptLongOutlinedIcon, route: "/page1" },
-    // { label: "Pay Bill", icon: ReceiptLongOutlinedIcon, route: "/bills" },
+    // { label: "Home", icon: HomeOutlinedIcon, route: "" },
+    { label: "Menu", icon: WindowSharpIcon, route: "/menu" },
+    // { label: "Cart", icon: ShoppingCartOutlinedIcon, route: "/cart" },
+    { label: "MyOrder", icon: AssignmentOutlinedIcon, route: "/my_order" },
+    { label: "Pay Bill", icon: ReceiptLongOutlinedIcon, route: "/bill" },
   ];
 
   return (
@@ -45,14 +44,14 @@ const FooterTab = () => {
               alignItems: "center",
               gap: 0.5,
               minWidth: 64,
-              color: active ? activeColor : "grey",
+              color: active ? theamOrange : "grey",
               textTransform: "none",
               background: "transparent",
               "&:hover": { background: "transparent" },
             }}
           >
-            <IconComp sx={{ color: active ? activeColor : "grey", fontSize: 24 }} />
-            <Typography sx={{ fontSize: 12, color: active ? activeColor : "grey" }}>
+            <IconComp sx={{ color: active ? theamOrange : "grey", fontSize: 24 }} />
+            <Typography sx={{ fontSize: 12, color: active ? theamOrange : "grey" }}>
               {btn.label}
             </Typography>
           </Button>

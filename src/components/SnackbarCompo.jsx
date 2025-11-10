@@ -12,7 +12,7 @@ const SnackbarCompo = ({
       open={successSnackbarOpen}
       autoHideDuration={4000}
       onClose={() => handleSnackbarClose()}
-      anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
     >
       <MuiAlert
         elevation={6}

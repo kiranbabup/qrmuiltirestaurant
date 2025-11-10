@@ -1,5 +1,5 @@
 const days = 1;
-export const storageKey = "skkmpos";
+export const storageKey = "qrmr";
 
 class LsService {
   ls = window.localStorage;

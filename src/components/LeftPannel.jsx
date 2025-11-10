@@ -1,0 +1,286 @@
+import { Box, Typography, List, ListItemButton, ListItemIcon, ListItemText, Divider } from "@mui/material";
+import { useLocation, useNavigate } from "react-router-dom";
+import logo from "../data/images/belloso.png";
+import { useEffect, useState } from "react";
+import LsService, { storageKey } from "../services/localstorage";
+
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import CategoryIcon from '@mui/icons-material/Category';
+import BusinessIcon from '@mui/icons-material/Business';
+import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
+import ClassIcon from '@mui/icons-material/Class';
+import FactoryIcon from '@mui/icons-material/Factory';
+import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
+import GroupIcon from '@mui/icons-material/Group';
+import ShoppingBagIcon from '@mui/icons-material/ShoppingBag';
+import ProductionQuantityLimitsIcon from '@mui/icons-material/ProductionQuantityLimits';
+import ShoppingBasketIcon from '@mui/icons-material/ShoppingBasket';
+import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
+import InventoryTwoToneIcon from '@mui/icons-material/InventoryTwoTone';
+import Inventory2TwoToneIcon from '@mui/icons-material/Inventory2TwoTone';
+import WorkspacesIcon from '@mui/icons-material/Workspaces';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
+
+// import ShoppingCartCheckoutIcon from '@mui/icons-material/ShoppingCartCheckout';
+// import WorkIcon from '@mui/icons-material/Work';
+// import AssessmentIcon from '@mui/icons-material/Assessment';
+// import GroupsSharpIcon from '@mui/icons-material/GroupsSharp';
+// import EditLocationAltIcon from '@mui/icons-material/EditLocationAlt';
+// import MiscellaneousServicesIcon from '@mui/icons-material/MiscellaneousServices';
+// import PsychologyIcon from '@mui/icons-material/Psychology';
+// import CreditScoreIcon from '@mui/icons-material/CreditScore';
+// import QuizIcon from '@mui/icons-material/Quiz';
+// import AssignmentAddIcon from '@mui/icons-material/AssignmentAdd';
+// import ConfirmationNumberIcon from '@mui/icons-material/ConfirmationNumber';
+// import PhoneCallbackIcon from '@mui/icons-material/PhoneCallback';
+// import PivotTableChartIcon from '@mui/icons-material/PivotTableChart';
+// import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
+// import UploadFileIcon from '@mui/icons-material/UploadFile';
+// import ContactPageIcon from '@mui/icons-material/ContactPage';
+
+const LeftPannel = ({ HeaderTitle }) => {
+    const navigate = useNavigate();
+    const location = useLocation();
+    const isActiveRoute = (route) => location.pathname === route;
+    const user = LsService.getItem(storageKey);
+    const [sections, setSections] = useState([]);
+
+    // Map navItems to icons
+    const navIcons = {
+        "/super_admin": <DashboardIcon />,
+        "/create_restaurant": <BusinessIcon />,
+        "/restaurants_list": <WorkspacesIcon />,
+
+        "/warehouse-admin": <DashboardIcon />,
+        "/store-manager": <DashboardIcon />,
+        // "/casher-panel": <DashboardIcon />,
+        "/categories": <CategoryIcon />,
+        "/units": <ClassIcon />,
+        "/stores": <FactoryIcon />,
+        "/brands": <AssignmentTurnedInIcon />,
+        "/users_management": <GroupIcon />,
+        "/products": <ShoppingBasketIcon />,
+        "/add-to-main": <AddShoppingCartIcon />,
+        "/add-store-products": <AddShoppingCartIcon />,
+        "/store-pendings": <ProductionQuantityLimitsIcon />,
+        "/store-recived-products": <ShoppingBagIcon />,
+        "/inventory-by-store": <Inventory2TwoToneIcon />,
+        "/confirm-store-inventory": <InventoryTwoToneIcon />,
+        "/add-store-combos": <WorkspacesIcon />,
+        "/store-inventory": <ShoppingCartIcon />,
+        "/billings": <ReceiptLongIcon />,
+        "/store-billings": <ReceiptLongIcon />,
+        "/display-combos": <ShoppingCartIcon />,
+
+        // "/employee-payments": <AccountBalanceWalletIcon />,
+        // "/manage-states": <EditLocationAltIcon />,
+        // "/manage-services": <MiscellaneousServicesIcon />,
+        // "/manage-posted-jobs": <WorkIcon />,
+        // "/manage-free-jobs": <WorkIcon />,
+        // "/manage-1499-jobs": <WorkIcon />,
+        // "/manage-skills": <PsychologyIcon />,
+        // "/manage-withdraw": <CreditScoreIcon />,
+        // "/manage-questions": <QuizIcon />,
+        // "/add-question": <AssignmentAddIcon />,
+        // "/manage-chatbot": <ConfirmationNumberIcon />,
+        // "/manage-vcall": <PhoneCallbackIcon />,
+        // "/manage-d_b_t": <PivotTableChartIcon />,
+        // "/manage-billboards": <AddPhotoAlternateIcon />,
+        // "/bulk-job-posting": <UploadFileIcon />,
+        // "/seekers-bulkupload": <ContactPageIcon />,
+        // "/reports": <AssessmentIcon />,
+    };
+
+    // Example sections
+    const superAdminSections = [
+        {
+            title: "Main",
+            items: [
+                { label: "Dashboard", route: "/super_admin" },
+            ]
+        },
+        {
+            title: "Management",
+            items: [
+                { label: "View Restaurants", route: "/restaurants_list" },
+                { label: "Create Restaurant", route: "/create_restaurant" },
+            ]
+        },
+        // {
+        //     title: "Products Management",
+        //     items: [
+        //         { label: "Main Inventory", route: "/products" },
+        //         { label: "Create Main Products", route: "/add-to-main" },
+        //     ]
+        // },
+        // {
+        //     title: "Requirements",
+        //     items: [
+        //         { label: "Categories", route: "/categories" },
+        //         { label: "Suppliers", route: "/suppliers" },
+        //         { label: "Brands", route: "/brands" },
+        //         { label: "Units", route: "/units" },
+        //     ]
+        // },
+        // {
+        //     title: "Store Products",
+        //     items: [
+        //         { label: "Add Store Products", route: "/add-store-products" },
+        //         { label: "Store Pendings", route: "/store-pendings" },
+        //         { label: "Confirm Store", route: "/confirm-store-inventory" },
+        //         { label: "Inventory by Store", route: "/inventory-by-store" },
+        //     ]
+        // },
+    ]
+
+    // const warehouseAdminSections = [
+    //     {
+    //         title: "Main",
+    //         items: [
+    //             { label: "WHAdmin Dashboard", route: "/warehouse-admin" },
+    //         ]
+    //     },
+    // ]
+
+    const storeAdminSections = [
+        {
+            title: "Main",
+            items: [
+                { label: "Store Dashboard", route: "/store-manager" },
+                { label: "Received Products", route: "/store-recived-products" },
+                { label: "Store Inventory", route: "/store-inventory" },
+                { label: "Add Store Combos", route: "/add-store-combos" },
+                { label: "View Combos", route: "/display-combos" },
+                { label: "Billings", route: "/store-billings" },
+            ]
+        },
+        // {
+        //     title: "Combo Section",
+        //     items: [
+        // { label: "Inventory by Store", route: "/inventory-by-store" },
+        // ]
+        // },
+    ]
+
+    // const cashierSections = [
+    //     {
+    //         title: "Main",
+    //         items: [
+    //             { label: "Cashier Dashboard", route: "/casher-panel" },
+    //         ]
+    //     },
+    // ]
+
+    useEffect(() => {
+        // console.log(user);
+        if (user) {
+            if (user.role === "super_admin") {
+                setSections(superAdminSections);
+                // } else if (user.role === "warehouse") {
+                //     setSections(warehouseAdminSections);
+            } else if (user.role === "store") {
+                setSections(storeAdminSections);
+                // } else if (user.role === "casher") {
+                //     setSections(cashierSections);
+            }
+        } else {
+            return;
+        }
+    }, []);
+
+    const getSectionForRoute = (pathname) => {
+        const found = sections.find(section =>
+            section.items.some(item => item.route === pathname)
+        );
+        return found ? found.title : sections[0]?.title ?? "";
+    };
+
+    const [openSection, setOpenSection] = useState(sections.length > 0 ? sections[0].title : "");
+
+    useEffect(() => {
+        setOpenSection(getSectionForRoute(location.pathname) || (sections[0]?.title ?? ""));
+    }, [location.pathname, sections]);
+
+    const onHandleNav = () => {
+        if (user.role === "super_admin") {
+            navigate("/super_admin");
+        } else if (user.role === "store") {
+            navigate("/store-manager");
+        } else {
+            navigate("/login");
+        }
+    }
+
+    return (
+        <Box sx={{
+            width: "100%",
+            boxShadow: "rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 2px 6px 2px",
+            backgroundColor: "#fafafa",
+            borderRadius: "10px",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "flex-start",
+            p: 1,
+        }}>
+            <Box sx={{ display: "flex", alignItems: "center", my: 1, cursor: "pointer" }}
+            onClick={() => onHandleNav()}
+            >
+                <img src={logo} alt="Logo" style={{ width: "3rem", height: "3rem", borderRadius: "50%", marginRight: "10px" }} />
+                <Typography variant="subtitle1" fontWeight="bold">{HeaderTitle}</Typography>
+            </Box>
+
+            {sections.map((section, idx) => (
+                <Box key={section.title} sx={{ width: "100%", mb: 1 }}>
+                    <Box
+                        sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            pl: 2,
+                            mb: 0.5,
+                            cursor: "pointer",
+                            userSelect: "none"
+                        }}
+                        onClick={() => setOpenSection(openSection === section.title ? "" : section.title)}
+                    // onClick={() => setOpenSection(section.title)}
+                    >
+                        <Typography variant="caption" color="text.secondary" sx={{ flexGrow: 1 }}>
+                            {section.title}
+                        </Typography>
+                        {openSection === section.title
+                            ? <KeyboardArrowUpIcon fontSize="small" />
+                            : <KeyboardArrowDownIcon fontSize="small" />}
+                    </Box>
+                    {openSection === section.title && (
+                        <List disablePadding>
+                            {section.items.map(item => (
+                                <ListItemButton
+                                    key={item.route}
+                                    selected={isActiveRoute(item.route)}
+                                    onClick={() => navigate(item.route)}
+                                    sx={{
+                                        borderRadius: 2,
+                                        my: 0.5,
+                                        bgcolor: isActiveRoute(item.route) ? "#f4f4f5" : "transparent",
+                                    }}
+                                >
+                                    <ListItemIcon sx={{ minWidth: 36 }}>
+                                        {navIcons[item.route] || <DashboardIcon />}
+                                    </ListItemIcon>
+                                    <ListItemText primary={item.label} primaryTypographyProps={{
+                                        fontWeight: isActiveRoute(item.route) ? "bold" : "normal"
+                                    }} />
+                                </ListItemButton>
+                            ))}
+                        </List>
+                    )}
+                    {idx < sections.length - 1 && <Divider sx={{ my: 1 }} />}
+                </Box>
+            ))}
+        </Box>
+    );
+};
+
+export default LeftPannel;

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import belloso from "../data/images/belloso.png";
 import { Box, Button } from "@mui/material";
 import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";
@@ -8,8 +8,14 @@ import edge2 from "./edgeImages/edge_2.png";
 import edge3 from "./edgeImages/edge_3.png";
 import edge4 from "./edgeImages/edge_4.png";
 
-const Page1 = () => {
+const Page1 = (data) => {
   const navigate = useNavigate();
+  
+  useEffect(() => {
+    // console.log(data.data.loc_id);
+    localStorage.setItem("menubyloc", JSON.stringify(data?.data?.data));
+    localStorage.setItem("locresid", data?.data?.loc_id);
+  }, [data]);
 
   return (
     <Box>
@@ -21,6 +27,7 @@ const Page1 = () => {
           justifyContent: "center",
           alignItems: "center",
           fontWeight: "bold",
+          textAlign:"center",
         }}
       >
         Not compatible with large screens. Please use Mobile or smaller screen
@@ -42,15 +49,26 @@ const Page1 = () => {
           }}
         >
           <Box
-          sx={{
-            width: "30%",
-          }}>
-            <img src={edge1} alt="edge" style={{width:"100%", height:"100%"}}/>
+            sx={{
+              width: "30%",
+            }}
+          >
+            <img
+              src={edge1}
+              alt="edge"
+              style={{ width: "100%", height: "100%" }}
+            />
           </Box>
-          <Box sx={{
-            width: "30%",
-          }}>
-            <img src={edge2} alt="edge" style={{width:"100%", height:"100%"}}/>
+          <Box
+            sx={{
+              width: "30%",
+            }}
+          >
+            <img
+              src={edge2}
+              alt="edge"
+              style={{ width: "100%", height: "100%" }}
+            />
           </Box>
         </Box>
         <Box style={styles.page}>
@@ -78,11 +96,10 @@ const Page1 = () => {
                 fontWeight: "bold",
                 textTransform: "none",
               }}
-              onClick={() => navigate("/page2")}
+              onClick={() => navigate("/menu")}
             >
               Order Now
             </Button>
-            
           </Box>
         </Box>
         <Box
@@ -98,15 +115,26 @@ const Page1 = () => {
           }}
         >
           <Box
-          sx={{
-            width: "30%",
-          }}>
-            <img src={edge3} alt="edge" style={{width:"100%", height:"100%"}}/>
+            sx={{
+              width: "30%",
+            }}
+          >
+            <img
+              src={edge3}
+              alt="edge"
+              style={{ width: "100%", height: "100%" }}
+            />
           </Box>
-          <Box sx={{
-            width: "30%",
-          }}>
-            <img src={edge4} alt="edge" style={{width:"100%", height:"100%"}}/>
+          <Box
+            sx={{
+              width: "30%",
+            }}
+          >
+            <img
+              src={edge4}
+              alt="edge"
+              style={{ width: "100%", height: "100%" }}
+            />
           </Box>
         </Box>
       </Box>

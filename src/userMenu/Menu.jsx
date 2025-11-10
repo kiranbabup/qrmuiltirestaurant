@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo, useState } from "react";
-import belloso from "../data/images/belloso.png";
 import {
   Box,
   Typography,
@@ -13,74 +12,183 @@ import {
   IconButton,
 } from "@mui/material";
 import { pageStyle } from "../data/styles";
-import TableBarOutlinedIcon from "@mui/icons-material/TableBarOutlined";
 import categoryPng from "../data/images/categoryPng.png";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import SearchIcon from "@mui/icons-material/Search";
 import CloseIcon from "@mui/icons-material/Close";
-import {
-  items as allItems,
-  categories as allCategories,
-} from "../data/contents/items";
+import { theamOrange } from "../data/contents/items";
 import FooterTab from "./FooterTab";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
-import ContactModal from "./ContactModal";
-import SnackbarCompo from "./SnackbarCompo";
+import SnackbarCompo from "../components/SnackbarCompo";
 import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
-import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
 import { useNavigate } from "react-router-dom";
+import VegIndicatorComp from "../components/VegIndicatorComp";
+import { fetchCategoriesById } from "../services/api";
+import HeaderPage from "./HeaderPage";
 
-const Page2 = () => {
+const Menu = (data) => {
+  const [allItems, setallItems] = useState([]);
+  const [categoriesFetched, setCategoriesFetched] = useState([]);
+  const [tableID, settableID] = useState(0);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("Filters");
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [expandedCategories, setExpandedCategories] = useState([]);
   const [expandedItem, setExpandedItem] = useState(null);
   const [shortModal, setShortModal] = useState(false);
-  const [contactModal, setContactModal] = useState(false);
-  const [orderingList, setOrderingList] = useState([]);
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
+
   const [snackbarContent, setsnackbarContent] = useState("");
   const [successSnackbarOpen, setSuccessSnackbarOpen] = useState(false);
   const [snackbarMode, setSnackbarMode] = useState("");
   const [loading, setLoading] = useState(false);
+
   const [orderNote, setOrderNote] = useState("");
   const [showNoteInput, setShowNoteInput] = useState({});
 
-  const [itemNotes, setItemNotes] = useState(() => {
+  // add near your other useStates
+  const [currentOrder, setCurrentOrder] = useState({
+    items: [],
+    subtotal: 0,
+    createdAt: null,
+  });
+
+  // 👉 Load orderingList from ONLY 'dishs'
+  const [orderingList, setOrderingList] = useState(() => {
     try {
-      const raw = localStorage.getItem("dishs"); // keep existing behaviour, notes stored only in-memory/local current order
-      return {};
-    } catch (e) {
-      return {};
+      const raw = localStorage.getItem("dishs");
+      if (!raw) return [];
+      const arr = JSON.parse(raw);
+      return arr.map((it) => ({
+        id: it.id,
+        name: it.name ?? "",
+        price: it.price ?? 0,
+        qty: it.qty ?? 1,
+        type: it.type ?? "vegan",
+      }));
+    } catch {
+      return [];
     }
   });
+
+  const [itemNotes, setItemNotes] = useState({});
+
+  // 👉 Quantities map only from 'dishs'
   const [quantities, setQuantities] = useState(() => {
     try {
       const raw = localStorage.getItem("dishs");
       if (!raw) return {};
       const arr = JSON.parse(raw);
-      // convert stored array -> map of id -> qty
       return arr.reduce((acc, item) => {
-        acc[item.id] = item.qty;
+        acc[item.id] = item.qty ?? 1;
         return acc;
       }, {});
-    } catch (e) {
+    } catch {
       return {};
     }
   });
 
   const navigate = useNavigate();
 
-  // console.log(expandedCategories);
-  const handleSnackbarClose = (event, reason) => {
-    if (reason === "clickaway") {
-      return;
+  // if data is injected, store it to localStorage for fetchers
+  useEffect(() => {
+    // 🐞 fix length typo
+    if (Array.isArray(data?.data?.data) && data?.data?.data.length >= 1) {
+      localStorage.setItem("menubyloc", JSON.stringify(data.data.data));
+      localStorage.setItem("locresid", data?.data?.loc_id);
     }
+  }, [data]);
+
+  useEffect(() => {
+    const locid = localStorage.getItem("locresid");
+    settableID(locid);
+    fetchCatigories();
+    fetchMenu();
+    try {
+      const raw = localStorage.getItem("dishs");
+      if (!raw) return;
+      const parsed = JSON.parse(raw);
+      setOrderingList(
+        parsed.map((it) => ({
+          id: it.id,
+          name: it.name ?? "",
+          price: it.price ?? 0,
+          qty: it.qty ?? 1,
+          type: it.type ?? "vegan",
+        }))
+      );
+      const qtyMap = parsed.reduce((acc, it) => {
+        acc[String(it.id)] = it.qty ?? 1;
+        return acc;
+      }, {});
+      setQuantities(qtyMap);
+    } catch (e) {
+      console.error("init orderingList error", e);
+    }
+    setCurrentOrder(loadCurrentOrder());
+  }, []);
+
+  const fetchCatigories = async () => {
+    try {
+      const locid = localStorage.getItem("locresid");
+      const res = await fetchCategoriesById(locid);
+      // console.log(res.data.data);
+      setCategoriesFetched(res.data.data);
+    } catch (err) {
+      console.error("Error fetching categories:", err);
+    }
+  };
+
+  const fetchMenu = async () => {
+    try {
+      const menubyloc = JSON.parse(localStorage.getItem("menubyloc")) || [];
+      const normalized = menubyloc.map((item) => ({
+        id: item.item_id ?? item.id,
+        name: item.name,
+        price: Number(item.price) || 0,
+        type:
+          item.item_type === "non_veg"
+            ? "nonveg"
+            : item.item_type === "vegan"
+            ? "vegan"
+            : item.item_type,
+        category: item.MenuCategory?.name || "Others",
+        description:
+          item.description ||
+          item.short_description ||
+          "No description provided.",
+        raw: item,
+      }));
+      setallItems(normalized);
+    } catch (err) {
+      console.error("Error fetching categories:", err);
+    }
+  };
+
+  // tiny helpers
+  const loadCurrentOrder = () => {
+    try {
+      const raw = localStorage.getItem("currentOrderData");
+      if (!raw) return { items: [], subtotal: 0, createdAt: null };
+      const parsed = JSON.parse(raw);
+      // handle accidental [] shape
+      if (!parsed || Array.isArray(parsed) || !Array.isArray(parsed.items)) {
+        return { items: [], subtotal: 0, createdAt: null };
+      }
+      return parsed;
+    } catch {
+      return { items: [], subtotal: 0, createdAt: null };
+    }
+  };
+
+  const saveCurrentOrder = (data) => {
+    localStorage.setItem("currentOrderData", JSON.stringify(data));
+  };
+
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === "clickaway") return;
     setSuccessSnackbarOpen(false);
-    setLoading(false);
+    // setLoading(false);
   };
 
   const toggleCategory = (cat) => {
@@ -89,56 +197,48 @@ const Page2 = () => {
     );
   };
 
-  const toggleItemNoteInput = (id) =>
-    setShowNoteInput((p) => ({ ...p, [id]: !p[id] }));
+  // const toggleItemNoteInput = (id) =>
+  //   setShowNoteInput((p) => ({ ...p, [id]: !p[id] }));
 
-  const handleItemNoteChange = (id, value) =>
-    setItemNotes((p) => ({ ...p, [id]: value }));
+  // const handleItemNoteChange = (id, value) =>
+  //   setItemNotes((p) => ({ ...p, [id]: value }));
 
-  // derived list based on search/filter/category
+  // derived list
   const filteredItems = useMemo(() => {
     let list = [...allItems];
+    const q = search.trim().toLowerCase();
 
-    // if search text provided, ignore category and filter categories should still apply for type/price if chosen
-    if (search.trim() !== "") {
-      const q = search.trim().toLowerCase();
-      list = list.filter((it) => it.name.toLowerCase().includes(q));
-      setExpandedCategories([list[0]?.category]);
+    if (q) {
+      list = list.filter((it) => it.name?.toLowerCase().includes(q));
     } else if (selectedCategory) {
-      // only apply category when there is no search
       list = list.filter((it) => it.category === selectedCategory);
-    } else {
-      setExpandedCategories([list[0]?.category]);
     }
 
-    // apply veg/nonveg and price sorting filters
-    if (filter === "Veg") {
-      list = list.filter((it) => it.type === "veg");
-      setExpandedCategories([list[0]?.category]);
-      setSelectedCategory(null);
+    if (filter === "vegan") {
+      list = list.filter((it) => it.type === "vegan");
     } else if (filter === "NonVeg") {
-      list = list.filter((it) => it.type === "nonveg");
-      setExpandedCategories([list[0]?.category]);
-      setSelectedCategory(null);
+      list = list.filter((it) => it.type === "nonveg" || it.type === "non_veg");
     } else if (filter === "PriceAsc") {
-      list = list.sort((a, b) => a.price - b.price);
-      setExpandedCategories([list[0]?.category]);
-      setSelectedCategory(null);
+      list = [...list].sort((a, b) => (a.price || 0) - (b.price || 0));
     } else if (filter === "PriceDesc") {
-      list = list.sort((a, b) => b.price - a.price);
-      setExpandedCategories([list[0]?.category]);
-      setSelectedCategory(null);
-      // } else if (filter === "Filters"){
-      // setSearch("");
+      list = [...list].sort((a, b) => (b.price || 0) - (a.price || 0));
     }
 
     return list;
-  }, [search, filter, selectedCategory]);
+  }, [allItems, search, filter, selectedCategory]);
 
-  const showCategories =
-    search.trim() === "" && (filter === "Filters" || filter === null);
+  useEffect(() => {
+    if (filteredItems.length > 0) {
+      const firstCat =
+        filteredItems[0].category ||
+        filteredItems[0].MenuCategory?.name ||
+        "Others";
+      setExpandedCategories([firstCat]);
+    } else {
+      setExpandedCategories([]);
+    }
+  }, [filteredItems]);
 
-  // group items by category
   const groupedItems = useMemo(() => {
     const groups = {};
     for (const item of filteredItems) {
@@ -152,11 +252,11 @@ const Page2 = () => {
     setExpandedItem((prev) => (prev === id ? null : id));
   };
 
-  // helper to persist quantities as array of {id,name,price,qty}
+  // ✅ save ONLY 'dishs'
   const saveDishs = (qtyMap) => {
     try {
       const arr = Object.keys(qtyMap).map((id) => {
-        const it = allItems.find((x) => String(x.id) === String(id));
+        const it = (allItems || []).find((x) => String(x.id) === String(id));
         return it
           ? {
               id: it.id,
@@ -165,24 +265,23 @@ const Page2 = () => {
               qty: qtyMap[id],
               type: it.type,
             }
-          : { id, qty: qtyMap[id] };
+          : { id, qty: qtyMap[id] }; // fallback
       });
       setOrderingList(arr);
       localStorage.setItem("dishs", JSON.stringify(arr));
     } catch (e) {
-      // ignore storage errors
+      console.error("saveDishs error", e);
     }
   };
 
-  // keep local storage in sync if quantities state changes externally
+  // keep storage in sync
   useEffect(() => {
     saveDishs(quantities);
-  }, [quantities]);
+  }, [quantities]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const increment = (id) => {
     setQuantities((prev) => {
       const next = { ...prev, [id]: (prev[id] || 0) + 1 };
-      // saveDishs(next);  // optional here because useEffect will save, but safe to call
       saveDishs(next);
       return next;
     });
@@ -202,50 +301,39 @@ const Page2 = () => {
     });
   };
 
-  // Add this computed value for total items
-  const totalItems = useMemo(() => {
-    return Object.values(quantities).reduce((sum, qty) => sum + qty, 0);
-  }, [quantities]);
+  const totalItems = useMemo(
+    () => Object.values(quantities).reduce((sum, qty) => sum + qty, 0),
+    [quantities]
+  );
 
   const viewClick = () => {
     if (totalItems > 0) {
-      const contact = localStorage.getItem("contactInfo");
-      if (contact) {
-        setName(JSON.parse(contact).name);
-        setPhone(JSON.parse(contact).phone);
-        setContactModal(true);
-      }
+      setShortModal(true);
+    } else {
+      setsnackbarContent("Cart is empty");
+      setSnackbarMode("error");
+      setSuccessSnackbarOpen(true);
     }
   };
 
-  const renderContactModal = () => (
-    <ContactModal
-      contactModal={contactModal}
-      setContactModal={setContactModal}
-      setShortModal={setShortModal}
-      phone={phone}
-      setPhone={setPhone}
-      name={name}
-      setName={setName}
-      loading={loading}
-      setLoading={setLoading}
-      setSuccessSnackbarOpen={setSuccessSnackbarOpen}
-      setsnackbarContent={setsnackbarContent}
-      setSnackbarMode={setSnackbarMode}
-    />
-  );
-
+  // 🧮 depend on allItems too (used in reducer)
   const subtotal = useMemo(() => {
     return Object.keys(quantities).reduce((sum, id) => {
       const it = allItems.find((x) => String(x.id) === String(id));
       const qty = quantities[id] || 0;
       return sum + (it ? it.price * qty : 0);
     }, 0);
-  }, [quantities]);
+  }, [quantities, allItems]);
+
+  // const existingIds = useMemo(
+  //   () => new Set((currentOrder.items || []).map((i) => String(i.id))),
+  //   [currentOrder]
+  // );
 
   const placeOrderHandler = () => {
     setLoading(true);
-    const items = (orderingList || []).map((it) => {
+
+    const newItems = (orderingList || []).map((it) => {
       const qty = (quantities && quantities[it.id]) ?? it.qty ?? 1;
       return {
         id: it.id,
@@ -253,31 +341,47 @@ const Page2 = () => {
         price: it.price,
         qty,
         type: it.type,
-        note: itemNotes[it.id] || "",
+        note: (itemNotes && itemNotes[it.id]) || "",
       };
     });
 
-    const currentOrderData = {
-      items,
-      orderNote: orderNote || "",
-      subtotal: subtotal,
-      createdAt: new Date().toISOString(),
-    };
+    // read existing order (object or empty)
+    const existing = loadCurrentOrder();
+    const nowISO = new Date().toISOString();
 
-    // persist under key "currentOrderData"
+    let updated;
+    if (!existing.items || existing.items.length === 0) {
+      // create new order
+      updated = {
+        items: newItems,
+        orderNote: orderNote || "",
+        subtotal: subtotal, // first batch total
+        createdAt: nowISO,
+        updatedAt: nowISO,
+      };
+    } else {
+      // append to existing (do not merge)
+      updated = {
+        ...existing,
+        items: [...existing.items, ...newItems],
+        // accumulate subtotal across batches
+        subtotal: Number(existing.subtotal || 0) + Number(subtotal || 0),
+        // you may choose to keep original orderNote or append
+        orderNote: existing.orderNote ?? "",
+        updatedAt: nowISO,
+      };
+    }
+
     try {
-      localStorage.setItem(
-        "currentOrderData",
-        JSON.stringify(currentOrderData)
-      );
-      // feedback + close
+      saveCurrentOrder(updated);
+      setCurrentOrder(updated);
       setsnackbarContent("Order Placed Successfully");
       setSnackbarMode("success");
       setSuccessSnackbarOpen(true);
       setLoading(false);
       setShortModal(false);
       clearCart();
-      navigate("/page3");
+      navigate("/my_order");
     } catch (e) {
       setsnackbarContent("Unable to Place order");
       setSnackbarMode("error");
@@ -286,16 +390,11 @@ const Page2 = () => {
     }
   };
 
-  // Add the modal component before the return statement
   const renderModal = () => (
     <Modal
       open={shortModal}
       onClose={() => setShortModal(false)}
-      sx={{
-        display: "flex",
-        alignItems: "flex-end",
-        justifyContent: "center",
-      }}
+      sx={{ display: "flex", alignItems: "flex-end", justifyContent: "center" }}
     >
       <Box
         sx={{
@@ -317,22 +416,63 @@ const Page2 = () => {
           }}
         >
           <Typography sx={{ fontWeight: "bold", mr: 1 }}>
-            {/* {totalItems} {totalItems === 1 ? "item" : "items"} in cart */}
-            Your Order Summary
+            Your Cart Summary
           </Typography>
           <IconButton onClick={() => setShortModal(false)} size="small">
             <CloseIcon />
           </IconButton>
         </Box>
         <Divider />
+
+        {/* 1) Existing order (read-only) */}
+        {(currentOrder.items || []).length > 0 && (
+          <Box sx={{ mt: 1, mb: 2 }}>
+            <Typography sx={{ fontWeight: 600, mb: 1 }}>
+              Already Ordered Items
+            </Typography>
+            {(currentOrder.items || []).map((it, idx) => (
+              <Box key={`existing-${idx}`} sx={{ p: 1 }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "start",
+                    justifyContent: "space-between",
+                    gap: 1,
+                  }}
+                >
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                    <VegIndicatorComp type={it.type} />
+                    <Typography sx={{color:"grey"}}>{it.name}</Typography>
+                  </Box>
+                  {/* read-only qty and line total */}
+                  <Box sx={{ textAlign: "right" }}>
+                    <Typography sx={{ fontSize: "12px", color:"grey" }}>
+                      Qty: {it.qty}
+                    </Typography>
+                    <Typography sx={{ fontSize: "12px", fontWeight: "500pt", color:"grey" }}>
+                      ₹{" "}
+                      {(Number(it.price || 0) * Number(it.qty || 0)).toFixed(2)}
+                    </Typography>
+                  </Box>
+                </Box>
+                {it.note ? (
+                  <Typography
+                    sx={{ color: "text.secondary", fontSize: 12, mt: 0.5 }}
+                  >
+                    Note: {it.note}
+                  </Typography>
+                ) : null}
+              </Box>
+            ))}
+            <Divider sx={{ my: 1 }} />
+          </Box>
+        )}
+
+        {/* 2) Current cart (editable) */}
         <Box sx={{ mt: 1 }}>
+          <Typography sx={{ fontWeight: 600, mb: 1 }}>New Order</Typography>
           {orderingList.map((it) => (
-            <Box
-              key={it.id}
-              sx={{
-                p: 1,
-              }}
-            >
+            <Box key={it.id} sx={{ p: 1 }}>
               <Box
                 sx={{
                   display: "flex",
@@ -342,53 +482,7 @@ const Page2 = () => {
                 }}
               >
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  {/* veg marker + name */}
-                  {it.type === "veg" ? (
-                    <Box
-                      sx={{
-                        width: "12px",
-                        height: "12px",
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        border: "2px solid green",
-                        borderRadius: "2px",
-                      }}
-                    >
-                      <Box
-                        sx={{
-                          width: "8px",
-                          height: "8px",
-                          backgroundColor: "green",
-                          borderRadius: "50%",
-                        }}
-                      ></Box>
-                    </Box>
-                  ) : (
-                    <Box
-                      sx={{
-                        width: "12px",
-                        height: "12px",
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        border: "2px solid crimson",
-                        borderRadius: "2px",
-                      }}
-                    >
-                      <Box
-                        sx={{
-                          width: 0,
-                          height: 0,
-                          borderLeft: "6px solid transparent",
-                          borderRight: "6px solid transparent",
-                          borderBottom: "7px solid crimson", // triangle color
-                          display: "inline-block",
-                        }}
-                        aria-hidden="true"
-                      ></Box>
-                    </Box>
-                  )}
+                  <VegIndicatorComp type={it.type} />
                   <Typography>{it.name}</Typography>
                 </Box>
 
@@ -400,20 +494,20 @@ const Page2 = () => {
                     gap: 1,
                   }}
                 >
-                  {/* qty controls */}
+                  {/* controls ALWAYS enabled for cart items, even if same id exists in current order */}
                   {quantities[it.id] ? (
                     <Box
                       sx={{
                         display: "flex",
                         alignItems: "center",
-                        border: "1px solid #ff8a2b",
+                        border: `1px solid ${theamOrange}`,
                         borderRadius: "4px",
                       }}
                     >
                       <Button
                         size="small"
                         onClick={() => decrement(it.id)}
-                        sx={{ minWidth: 30, color: "#ff8a2b" }}
+                        sx={{ minWidth: 30, color: theamOrange }}
                       >
                         -
                       </Button>
@@ -423,7 +517,7 @@ const Page2 = () => {
                       <Button
                         size="small"
                         onClick={() => increment(it.id)}
-                        sx={{ minWidth: 30, color: "#ff8a2b" }}
+                        sx={{ minWidth: 30, color: theamOrange }}
                       >
                         +
                       </Button>
@@ -435,15 +529,16 @@ const Page2 = () => {
                       sx={{
                         borderRadius: 2,
                         textTransform: "none",
-                        borderColor: "#ff8a2b",
-                        color: "#ff8a2b",
+                        borderColor: theamOrange,
+                        color: theamOrange,
                       }}
                       onClick={() => increment(it.id)}
                     >
                       + Add
                     </Button>
                   )}
-                  {/* per-item price */}
+
+                  {/* line total */}
                   {(() => {
                     const qty =
                       (quantities && quantities[it.id]) ?? it.qty ?? 1;
@@ -462,13 +557,16 @@ const Page2 = () => {
                   })()}
                 </Box>
               </Box>
-              {/* per-item Add Note button or TextField (one per item) */}
+
+              {/* Notes for cart items only */}
               {!showNoteInput[it.id] ? (
                 <Button
                   size="small"
                   variant="outlined"
                   startIcon={<DescriptionOutlinedIcon />}
-                  onClick={() => toggleItemNoteInput(it.id)}
+                  onClick={() =>
+                    setShowNoteInput((p) => ({ ...p, [it.id]: true }))
+                  }
                   sx={{
                     textTransform: "none",
                     color: "grey",
@@ -483,22 +581,21 @@ const Page2 = () => {
                 <TextField
                   placeholder="Enter dish instructions..."
                   value={itemNotes[it.id] || ""}
-                  onChange={(e) => handleItemNoteChange(it.id, e.target.value)}
+                  onChange={(e) =>
+                    setItemNotes((p) => ({ ...p, [it.id]: e.target.value }))
+                  }
                   fullWidth
                   size="small"
                   sx={{
                     mt: 1,
                     borderRadius: 1,
                     "& .MuiOutlinedInput-root": {
-                      // background: "#fff",
                       "& fieldset": { borderColor: "rgba(0,0,0,0.12)" },
                       "&:hover fieldset": { borderColor: "rgba(0,0,0,0.18)" },
-                      "&.Mui-focused": {
-                        boxShadow: "0 0 5px rgba(0,0,0,0.2)", // subtle grey shadow on focus
-                      },
+                      "&.Mui-focused": { boxShadow: "0 0 5px rgba(0,0,0,0.2)" },
                       "&.Mui-focused fieldset": {
                         borderColor: "rgba(0,0,0,0.12)",
-                      }, // keep outline muted
+                      },
                     },
                   }}
                   InputProps={{
@@ -507,15 +604,6 @@ const Page2 = () => {
                         <DescriptionOutlinedIcon />
                       </Box>
                     ),
-                    // endAdornment: (
-                    //   <Button
-                    //     size="small"
-                    //     onClick={() => toggleItemNoteInput(it.id)}
-                    //     sx={{ textTransform: "none", ml: 1 }}
-                    //   >
-                    //     Done
-                    //   </Button>
-                    // ),
                   }}
                 />
               )}
@@ -531,13 +619,10 @@ const Page2 = () => {
           sx={{
             my: 1,
             "& .MuiOutlinedInput-root": {
-              // background: "#fff",
               "& fieldset": { borderColor: "rgba(0,0,0,0.12)" },
               "&:hover fieldset": { borderColor: "rgba(0,0,0,0.18)" },
-              "&.Mui-focused": {
-                boxShadow: "0 0 5px rgba(0,0,0,0.2)", // subtle grey shadow on focus
-              },
-              "&.Mui-focused fieldset": { borderColor: "rgba(0,0,0,0.12)" }, // keep outline muted
+              "&.Mui-focused": { boxShadow: "0 0 5px rgba(0,0,0,0.2)" },
+              "&.Mui-focused fieldset": { borderColor: "rgba(0,0,0,0.12)" },
             },
           }}
           size="small"
@@ -555,7 +640,7 @@ const Page2 = () => {
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-            backgroundColor: "#ff8a2b",
+            backgroundColor: theamOrange,
             p: 2,
           }}
         >
@@ -566,22 +651,20 @@ const Page2 = () => {
               ₹ {subtotal.toFixed(2)}
             </Typography>
             <Typography sx={{ color: "white", fontSize: "10px" }}>
-              SUBTOTAL
+              CART TOTAL
             </Typography>
           </Box>
           <Button
             variant="contained"
             sx={{
-              color: "#ff8a2b",
+              color: theamOrange,
               bgcolor: "#fff",
               py: 1.5,
               textTransform: "none",
               fontWeight: "bold",
-              "&:hover": {
-                color: "#e67a24",
-                bgcolor: "whitesmoke",
-              },
+              "&:hover": { color: "#e67a24", bgcolor: "whitesmoke" },
             }}
+            disabled={loading}
             onClick={() => placeOrderHandler()}
           >
             Place Order
@@ -594,6 +677,8 @@ const Page2 = () => {
   const clearCart = () => {
     setQuantities({});
     localStorage.setItem("dishs", JSON.stringify([]));
+    // Optional: clean up legacy key if it ever existed
+    // localStorage.removeItem("dishs_full");
   };
 
   return (
@@ -607,6 +692,7 @@ const Page2 = () => {
           justifyContent: "center",
           alignItems: "center",
           fontWeight: "bold",
+          textAlign: "center",
         }}
       >
         Not compatible with large screens. Please use Mobile or smaller screen
@@ -619,206 +705,164 @@ const Page2 = () => {
           {/* Header */}
           <Box
             sx={{
-              display: "flex",
-              alignItems: "center",
+              position: "fixed",
+              top: 0,
+              left: 0,
+              zIndex: 2,
               width: "100%",
-              justifyContent: "space-between",
-              position: "sticky",
-              top: 0,
-              zIndex: 2,
+              backgroundColor: "#fff9f8",
             }}
           >
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                width: "70%",
-                pl: 1,
-              }}
-            >
-              <img
-                src={belloso}
-                alt="Cafe Belloso"
-                style={{
-                  width: 44,
-                  height: 44,
-                  objectFit: "contain",
-                  padding: "5px",
-                }}
-              />
-              <Typography>Cafe Belloso</Typography>
-            </Box>
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                borderRadius: "4px",
-                backgroundColor: "#e9e8e8",
-                p: "5px 10px",
-                mr: 1,
-              }}
-            >
-              <TableBarOutlinedIcon />
-              <Typography sx={{ ml: 1, fontWeight: "bold" }}>24</Typography>
-            </Box>
-          </Box>
+            <HeaderPage tableID={tableID} viewClick={viewClick} />
 
-          {/* Search + Filter Row */}
-          <Box
-            sx={{
-              px: 1,
-              position: "sticky",
-              top: 0,
-              zIndex: 2,
-              pb: 1,
-            }}
-          >
-            <Stack
-              direction="row"
-              spacing={1}
-              alignItems="center"
-              sx={{ bgcolor: "#fff" }}
-            >
-              <TextField
-                size="small"
-                placeholder="Search item"
-                value={search}
-                onChange={(e) => {
-                  setSearch(e.target.value);
-                  // clear category when searching
-                  if (e.target.value.trim() !== "") setSelectedCategory(null);
-                }}
-                sx={{ flex: 1 }}
-                InputProps={{
-                  startAdornment: <SearchIcon sx={{ opacity: 0.6, mr: 1 }} />,
-                }}
-              />
-
-              <Select
-                size="small"
-                value={filter}
-                onChange={(e) => setFilter(e.target.value)}
-                sx={{ minWidth: 140 }}
+            {/* Search + Filter Row */}
+            <Box sx={{ px: 1, position: "sticky", top: 0, zIndex: 2, pb: 1 }}>
+              <Stack
+                direction="row"
+                spacing={1}
+                alignItems="center"
+                sx={{ bgcolor: "#fff" }}
               >
-                <MenuItem value="Filters">Filters</MenuItem>
-                <MenuItem value="PriceAsc">Price: Low to High</MenuItem>
-                <MenuItem value="PriceDesc">Price: High to Low</MenuItem>
-                <MenuItem value="Veg">Veg</MenuItem>
-                <MenuItem value="NonVeg">Non-Veg</MenuItem>
-              </Select>
-            </Stack>
+                <TextField
+                  size="small"
+                  placeholder="Search item"
+                  value={search}
+                  onChange={(e) => {
+                    setSearch(e.target.value);
+                    if (e.target.value.trim() !== "") setSelectedCategory(null);
+                  }}
+                  sx={{ flex: 1 }}
+                  InputProps={{
+                    startAdornment: <SearchIcon sx={{ opacity: 0.6, mr: 1 }} />,
+                  }}
+                />
+
+                <Select
+                  size="small"
+                  value={filter}
+                  onChange={(e) => setFilter(e.target.value)}
+                  sx={{ minWidth: 140 }}
+                >
+                  <MenuItem value="Filters">Filters</MenuItem>
+                  <MenuItem value="PriceAsc">Price: Low to High</MenuItem>
+                  <MenuItem value="PriceDesc">Price: High to Low</MenuItem>
+                  <MenuItem value="vegan">veg</MenuItem>
+                  <MenuItem value="NonVeg">Non-Veg</MenuItem>
+                </Select>
+              </Stack>
+            </Box>
           </Box>
 
           <Box
             sx={{
-              height: "80vh",
+              pt: "93px",
+              height: "calc(100vh - 166px)",
               overflowY: "auto",
-              "&::-webkit-scrollbar": { display: "none" }, // Hide scrollbar for Chrome, Safari
-              scrollbarWidth: "none", // Hide for Firefox
-              msOverflowStyle: "none", // Hide for IE 10+
+              "&::-webkit-scrollbar": { display: "none" },
+              scrollbarWidth: "none",
+              msOverflowStyle: "none",
             }}
           >
-            {/* Categories (only when no search and filter is All) */}
-            {showCategories && (
-              <Box sx={{ mt: 1, px: 1 }}>
-                <Stack
-                  direction="row"
-                  spacing={2}
-                  sx={{
-                    overflowX: "auto",
-                    pb: 1,
-                    "&::-webkit-scrollbar": { display: "none" }, // Chrome, Safari
-                    scrollbarWidth: "none", // Firefox
-                    msOverflowStyle: "none", // IE 10+
-                  }}
-                >
-                  {allCategories.map((cat) => {
-                    const active = selectedCategory === cat;
-                    return (
+            <Box sx={{ mt: 1, px: 1 }}>
+              <Stack
+                direction="row"
+                spacing={2}
+                sx={{
+                  overflowX: "auto",
+                  pb: 1,
+                  "&::-webkit-scrollbar": { display: "none" },
+                  scrollbarWidth: "none",
+                  msOverflowStyle: "none",
+                }}
+              >
+                {categoriesFetched.map((cat) => {
+                  const active = selectedCategory === cat.name;
+                  return (
+                    <Box
+                      sx={{
+                        borderBottom: active
+                          ? `3px solid ${theamOrange}`
+                          : "none",
+                        pb: 0.5,
+                      }}
+                      key={cat.cate_id}
+                    >
                       <Box
-                        sx={{
-                          borderBottom: active ? "3px solid #ff8a2b" : "none",
-                          pb: 0.5,
+                        onClick={() => {
+                          setSelectedCategory(active ? null : cat.name);
+                          setExpandedCategories([cat.name]);
                         }}
-                        key={cat}
+                        sx={{
+                          width: 60,
+                          cursor: "pointer",
+                          textAlign: "center",
+                          p: 1,
+                          borderRadius: 2,
+                          border: active
+                            ? `1px solid ${theamOrange}`
+                            : "1px solid rgba(0,0,0,0.2)",
+                          backgroundColor: active ? "#fff8f2" : "#fff",
+                          mt: 1,
+                        }}
                       >
                         <Box
-                          onClick={() => {
-                            setSelectedCategory(active ? null : cat);
-                            toggleCategory(cat);
-                          }}
                           sx={{
-                            width: 60,
-                            cursor: "pointer",
-                            textAlign: "center",
-                            p: 1,
-                            borderRadius: 2,
-                            border: active
-                              ? "1px solid #ff8a2b"
-                              : "1px solid rgba(0,0,0,0.2)",
-                            backgroundColor: active ? "#fff8f2" : "#fff",
-                            mt: 1,
+                            position: "relative",
+                            width: "70%",
+                            height: "70%",
+                            mx: "auto",
                           }}
                         >
-                          <Box
-                            sx={{
-                              position: "relative",
-                              width: "70%",
-                              height: "70%",
-                              mx: "auto",
-                            }}
-                          >
-                            {active && (
-                              <CheckCircleIcon
-                                sx={{
-                                  position: "absolute",
-                                  top: -18,
-                                  right: -28,
-                                  zIndex: 3,
-                                  color: "#ff8a2b",
-                                  bgcolor: "#fff",
-                                  borderRadius: "50%",
-                                }}
-                              />
-                            )}
-                            <img
-                              src={categoryPng}
-                              alt={cat}
-                              style={{
-                                width: "100%",
-                                height: "100%",
-                                objectFit: "contain",
+                          {active && (
+                            <CheckCircleIcon
+                              sx={{
+                                position: "absolute",
+                                top: -18,
+                                right: -28,
+                                zIndex: 3,
+                                color: theamOrange,
+                                bgcolor: "#fff",
+                                borderRadius: "50%",
                               }}
                             />
-                          </Box>
-                        </Box>
-
-                        <Box
-                          sx={{
-                            display: "flex",
-                            justifyContent: "center",
-                            alignItems: "center",
-                            width: "100%",
-                            height: "30%",
-                          }}
-                        >
-                          <Typography
-                            sx={{
-                              fontSize: 12,
-                              fontWeight: "bold",
-                              color: active ? "#ff8a2b" : "black",
-                              textAlign: "center",
+                          )}
+                          <img
+                            src={categoryPng}
+                            alt={cat.name}
+                            style={{
+                              width: "100%",
+                              height: "100%",
+                              objectFit: "contain",
                             }}
-                          >
-                            {cat}
-                          </Typography>
+                          />
                         </Box>
                       </Box>
-                    );
-                  })}
-                </Stack>
-              </Box>
-            )}
+
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          width: "100%",
+                          height: "30%",
+                        }}
+                      >
+                        <Typography
+                          sx={{
+                            fontSize: 12,
+                            fontWeight: "bold",
+                            color: active ? theamOrange : "black",
+                            textAlign: "center",
+                          }}
+                        >
+                          {cat.name}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  );
+                })}
+              </Stack>
+            </Box>
 
             <Divider sx={{ my: 1 }} />
 
@@ -852,73 +896,28 @@ const Page2 = () => {
                     {/* Items */}
                     {isOpen && (
                       <Stack>
-                        {items.map((it) => (
+                        {items.map((it, index) => (
                           <Box
-                            key={it.id}
+                            key={index}
                             sx={{
                               display: "flex",
                               alignItems: "center",
                               justifyContent: "space-between",
                               p: 1,
                               background: "#fff",
-                              // borderRadius: 2,
                               boxShadow: "0 1px 0 rgba(0,0,0,0.03)",
-                              borderBottom: "1px dashed grey",
+                              borderBottom:
+                                index === items.length - 1
+                                  ? "none"
+                                  : "1px dashed grey",
                             }}
                           >
                             <Box>
-                              {/* Veg/Non-Veg Indicator */}
-
-                              {it.type === "veg" ? (
-                                <Box
-                                  sx={{
-                                    width: "12px",
-                                    height: "12px",
-                                    display: "flex",
-                                    justifyContent: "center",
-                                    alignItems: "center",
-                                    border: "2px solid green",
-                                    borderRadius: "2px",
-                                  }}
-                                >
-                                  <Box
-                                    sx={{
-                                      width: "8px",
-                                      height: "8px",
-                                      backgroundColor: "green",
-                                      borderRadius: "50%",
-                                    }}
-                                  ></Box>
-                                </Box>
-                              ) : (
-                                <Box
-                                  sx={{
-                                    width: "12px",
-                                    height: "12px",
-                                    display: "flex",
-                                    justifyContent: "center",
-                                    alignItems: "center",
-                                    border: "2px solid crimson",
-                                    borderRadius: "2px",
-                                  }}
-                                >
-                                  <Box
-                                    sx={{
-                                      width: 0,
-                                      height: 0,
-                                      borderLeft: "6px solid transparent",
-                                      borderRight: "6px solid transparent",
-                                      borderBottom: "7px solid crimson", // triangle color
-                                      display: "inline-block",
-                                    }}
-                                    aria-hidden="true"
-                                  ></Box>
-                                </Box>
-                              )}
+                              <VegIndicatorComp type={it.type} />
                               <Typography sx={{ fontWeight: 600 }}>
                                 {it.name}
                               </Typography>
-                              <Typography>₹ {it.price.toFixed(2)}</Typography>
+                              <Typography>₹ {it.price}</Typography>
 
                               <Typography
                                 sx={{ color: "text.secondary", fontSize: 13 }}
@@ -933,7 +932,7 @@ const Page2 = () => {
                                     size="small"
                                     sx={{
                                       textTransform: "none",
-                                      color: "#ff8a2b",
+                                      color: theamOrange,
                                       ml: 0.5,
                                     }}
                                     onClick={() => toggleDescription(it.id)}
@@ -952,14 +951,14 @@ const Page2 = () => {
                                 sx={{
                                   display: "flex",
                                   alignItems: "center",
-                                  border: "1px solid #ff8a2b",
+                                  border: `1px solid ${theamOrange}`,
                                   borderRadius: "4px",
                                 }}
                               >
                                 <Button
                                   size="small"
                                   onClick={() => decrement(it.id)}
-                                  sx={{ minWidth: 30, color: "#ff8a2b" }}
+                                  sx={{ minWidth: 30, color: theamOrange }}
                                 >
                                   -
                                 </Button>
@@ -969,7 +968,7 @@ const Page2 = () => {
                                 <Button
                                   size="small"
                                   onClick={() => increment(it.id)}
-                                  sx={{ minWidth: 30, color: "#ff8a2b" }}
+                                  sx={{ minWidth: 30, color: theamOrange }}
                                 >
                                   +
                                 </Button>
@@ -981,8 +980,8 @@ const Page2 = () => {
                                 sx={{
                                   borderRadius: 2,
                                   textTransform: "none",
-                                  borderColor: "#ff8a2b",
-                                  color: "#ff8a2b",
+                                  borderColor: theamOrange,
+                                  color: theamOrange,
                                 }}
                                 onClick={() => increment(it.id)}
                               >
@@ -998,9 +997,10 @@ const Page2 = () => {
               })}
             </Box>
           </Box>
+          <Box p={totalItems > 0 ? "9vh" : "5.5vh"} backgroundColor="#fff9f8" />
         </Box>
 
-        {/* Add this floating cart summary box */}
+        {/* Floating cart summary */}
         <Box
           sx={{
             position: "fixed",
@@ -1008,7 +1008,7 @@ const Page2 = () => {
             left: 0,
             right: 0,
             bgcolor: "#fee8db",
-            color: "#ff8a2b",
+            color: theamOrange,
             py: 1.5,
             px: 2,
             mx: 2,
@@ -1023,21 +1023,12 @@ const Page2 = () => {
           <Typography sx={{ fontWeight: "bold" }}>
             {totalItems} {totalItems === 1 ? "item" : "items"} in cart
           </Typography>
-          <Box
-            sx={{
-              display: "flex",
-              // justifyContent: "space-between",
-              alignItems: "center",
-              gap: 1,
-            }}
-          >
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <Button
               variant="contained"
               color="warning"
               onClick={() => viewClick()}
-              sx={{
-                textTransform: "none",
-              }}
+              sx={{ textTransform: "none" }}
             >
               View Cart
             </Button>
@@ -1050,7 +1041,6 @@ const Page2 = () => {
             </IconButton>
           </Box>
         </Box>
-
         <Box
           sx={{
             position: "fixed",
@@ -1071,10 +1061,8 @@ const Page2 = () => {
         snackbarContent={snackbarContent}
         snackbarMode={snackbarMode}
       />
-      {/* Render the modal for short cart summary */}
-      {renderContactModal()}
       {renderModal()}
     </Box>
   );
 };
-export default Page2;
+export default Menu;
