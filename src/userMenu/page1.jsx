@@ -8,14 +8,8 @@ import edge2 from "./edgeImages/edge_2.png";
 import edge3 from "./edgeImages/edge_3.png";
 import edge4 from "./edgeImages/edge_4.png";
 
-const Page1 = (data) => {
+const Page1 = () => {
   const navigate = useNavigate();
-  
-  useEffect(() => {
-    // console.log(data.data.loc_id);
-    localStorage.setItem("menubyloc", JSON.stringify(data?.data?.data));
-    localStorage.setItem("locresid", data?.data?.loc_id);
-  }, [data]);
 
   return (
     <Box>
@@ -27,7 +21,7 @@ const Page1 = (data) => {
           justifyContent: "center",
           alignItems: "center",
           fontWeight: "bold",
-          textAlign:"center",
+          textAlign: "center",
         }}
       >
         Not compatible with large screens. Please use Mobile or smaller screen

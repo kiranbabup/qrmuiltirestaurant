@@ -1,15 +1,15 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Box, Typography, Button, Paper } from "@mui/material";
-import { pageStyle } from "../data/styles";
-import { page3BGColor, theamOrange } from "../data/contents/items";
-import FooterTab from "./FooterTab";
+import { pageStyle } from "../../data/styles";
+import { page3BGColor, theamOrange } from "../../data/contents/items";
+import FooterTab from "../FooterTab";
 import { useNavigate } from "react-router-dom";
 import AssignmentOutlinedIcon from "@mui/icons-material/AssignmentOutlined";
 import DiningIcon from "@mui/icons-material/Dining";
 import noOrderImg from "./pageImages/no_orders_yet.svg";
 import LoopIcon from "@mui/icons-material/Loop";
-import VegIndicatorComp from "../components/VegIndicatorComp";
-import HeaderPage from "./HeaderPage";
+import VegIndicatorComp from "../../components/VegIndicatorComp";
+import HeaderPage from "../HeaderPage";
 
 const Page3 = () => {
   const [loading, setLoading] = useState(false);

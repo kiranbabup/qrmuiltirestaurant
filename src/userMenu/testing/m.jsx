@@ -11,22 +11,22 @@ import {
   Modal,
   IconButton,
 } from "@mui/material";
-import { pageStyle } from "../data/styles";
+import { pageStyle } from "../../data/styles";
 import categoryPng from "../data/images/categoryPng.png";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import SearchIcon from "@mui/icons-material/Search";
 import CloseIcon from "@mui/icons-material/Close";
-import { theamOrange } from "../data/contents/items";
-import FooterTab from "./FooterTab";
+import { theamOrange } from "../../data/contents/items";
+import FooterTab from "../FooterTab";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
-import ContactModal from "./ContactModal";
-import SnackbarCompo from "../components/SnackbarCompo";
+import ContactModal from "../ContactModal";
+import SnackbarCompo from "../../components/SnackbarCompo";
 import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
 import { useNavigate } from "react-router-dom";
-import VegIndicatorComp from "../components/VegIndicatorComp";
-import { fetchCategoriesById } from "../services/api";
-import HeaderPage from "./HeaderPage";
+import VegIndicatorComp from "../../components/VegIndicatorComp";
+import { fetchCategoriesById } from "../../services/api";
+import HeaderPage from "../HeaderPage";
 
 const Menu = (data) => {
   const [allItems, setallItems] = useState([]);

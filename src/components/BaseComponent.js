@@ -3,7 +3,7 @@ import React from "react";
 import withRouter from "./withRouter";
 import { Box } from "@mui/material";
 import "./BaseComp.css";
-import { getMenuById } from "../services/api";
+import { fetchQRStatsByTableId, getMenuById } from "../services/api";
 
 class BaseComponent extends React.Component {
   constructor(props) {
@@ -20,7 +20,8 @@ class BaseComponent extends React.Component {
     if (id) {
       try {
         // call your MySQL API
-        const res = await getMenuById(id);
+        const res = await fetchQRStatsByTableId(id);
+        // const res = await getMenuById(id);
         // assuming your API returns: { success: true, data: {...} } OR just the object
         // adjust based on your real API response
         const apiData = res.data;

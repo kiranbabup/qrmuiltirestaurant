@@ -10,7 +10,22 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 
-const PayCounterModal = ({ payModal, setPayModal, loading, onYesHandle }) => {
+const PayCounterModal = ({
+  payHeaderText,
+  payContent,
+  payModal,
+  setPayModal,
+  loading,
+  onYesOnlineHandle
+}) => {
+  const onYesHandle =()=>{
+    if(payHeaderText === "Pay Online?"){
+      onYesOnlineHandle();
+    }else {
+      setPayModal(false);
+    }
+  }
+
   return (
     <Dialog
       open={payModal}
@@ -26,7 +41,7 @@ const PayCounterModal = ({ payModal, setPayModal, loading, onYesHandle }) => {
           borderRadius: "10px",
         }}
       >
-        <Typography fontWeight="bold">Pay At Counter?</Typography>
+        <Typography fontWeight="bold">{payHeaderText}</Typography>
         <IconButton
           onClick={() => setPayModal()}
           size="small"
@@ -37,10 +52,7 @@ const PayCounterModal = ({ payModal, setPayModal, loading, onYesHandle }) => {
       </DialogTitle>
       <Divider />
       <DialogContent>
-        <Typography fontSize={13}>
-          You'll need to check with the biller at the counter to pay. Do you
-          wish to proceed?
-        </Typography>
+        <Typography fontSize={13}>{payContent}</Typography>
       </DialogContent>
       <Divider />
       <DialogActions>
@@ -50,9 +62,10 @@ const PayCounterModal = ({ payModal, setPayModal, loading, onYesHandle }) => {
           onClick={() => setPayModal()}
           fullWidth
         >
-          No
+          {payHeaderText === "Pay Online?" ? "No" : "close"}
         </Button>
-        <Button
+        {
+          payHeaderText === "Pay Online?" && <Button
           variant="contained"
           color="warning"
           onClick={() => onYesHandle()}
@@ -62,6 +75,8 @@ const PayCounterModal = ({ payModal, setPayModal, loading, onYesHandle }) => {
         >
           yes
         </Button>
+        }
+        
       </DialogActions>
     </Dialog>
   );

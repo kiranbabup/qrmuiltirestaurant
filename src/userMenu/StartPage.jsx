@@ -9,7 +9,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import namaste from "./pageImages/namaste.svg";
 
-const FinalPage = () => {
+const StartPage = () => {
   const navigate = useNavigate();
 
   return (
@@ -54,17 +54,17 @@ const FinalPage = () => {
               style={{ width: "45%", marginBottom: "1rem" }}
             />
             <Typography sx={{ fontWeight: "bold", my: 1 }}>
-              Thank You!
+              Welcome!
             </Typography>
             <Typography sx={{ color: "grey", textAlign: "center", px: "10%" }}>
-              We appreciate your visit and hope to serve you again soon!
+              Please scan the QR at the restaurant table.
             </Typography>
             <Box p={2} />
             {/* <Button
               variant="contained"
               color="warning"
               sx={{ textTransform: "none" }}
-              onClick={() => navigate("/")}
+              onClick={() => navigate("/menu")}
             >
               View Your Orders
             </Button> */}
@@ -74,4 +74,4 @@ const FinalPage = () => {
     </Box>
   );
 };
-export default FinalPage;
+export default StartPage;

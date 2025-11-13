@@ -3,7 +3,7 @@ import React from "react";
 import withRouter from "../components/withRouter";
 import BaseComponent from "../components/BaseComponent";
 import Page1 from "./page1";
-import Menu from "./Menu";
+import UserMenu from "./UserMenu";
 
 class HomePage extends React.Component {
   constructor(props) {
@@ -11,13 +11,16 @@ class HomePage extends React.Component {
   }
 
   renderTable = (data) => {
-    console.log(data);
-    const cart = JSON.parse(localStorage.getItem("dishs"));
-    console.log(cart);
+    // console.log(data);
+    // console.log(data.data.table);
+    localStorage.setItem("resloctab", JSON.stringify(data?.data?.table));
+    localStorage.setItem("bg", false);
+    localStorage.removeItem("oid");
 
     return (
       <main className="customer-menu-page" ref={this.mainRef}>
-        {cart?.length >= 1 ? <Menu data={data} /> : <Page1 data={data} />}
+        {data?.data?.cartItems?.length >= 1 ? <UserMenu /> : <Page1 />}
+        {/* <Page1 data={data} /> */}
       </main>
     );
   };

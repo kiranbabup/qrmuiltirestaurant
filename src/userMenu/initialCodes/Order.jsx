@@ -1,16 +1,17 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Box, Typography, Button, Paper } from "@mui/material";
-import { pageStyle } from "../data/styles";
-import { page3BGColor, theamOrange } from "../data/contents/items";
-import FooterTab from "./FooterTab";
+import { pageStyle } from "../../data/styles";
+import { page3BGColor, theamOrange } from "../../data/contents/items";
+import FooterTab from "../FooterTab";
 import { useNavigate } from "react-router-dom";
 import AssignmentOutlinedIcon from "@mui/icons-material/AssignmentOutlined";
 import noOrderImg from "./pageImages/no_orders_yet.svg";
-import VegIndicatorComp from "../components/VegIndicatorComp";
-import HeaderPage from "./HeaderPage";
-import SnackbarCompo from "../components/SnackbarCompo";
-import ContactModal from "./ContactModal";
-import ServiceChargeRow from "./ServiceChargeRow";
+import VegIndicatorComp from "../../components/VegIndicatorComp";
+import HeaderPage from "../HeaderPage";
+import SnackbarCompo from "../../components/SnackbarCompo";
+import ContactModal from "../ContactModal";
+import ServiceChargeRow from "../ServiceChargeRow";
+import ConfirmationComponent from "../../components/ConfirmationComponent";
 
 const cgst = 2.5;
 const sgst = 2.5;
@@ -21,6 +22,7 @@ const Order = () => {
 
   const [currentOrderList, setCurrentOrderList] = useState([]);
   const [currentOrderCount, setCurrentOrderCount] = useState("00");
+  const [confirmModalOpen, setConfirmModalOpen] = useState(false);
 
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -177,7 +179,7 @@ const Order = () => {
     );
   }, [totalOrderList]);
 
-  const handlePayBill = () => {
+  const confirmByModal = () => {
     // Case 1 & 2: No orders exist or no active orders
     const contact = localStorage.getItem("contactInfo");
     if (contact) {
@@ -187,14 +189,15 @@ const Order = () => {
     }
     // Show contact modal for both new and existing users
     setContactModal(true);
-    // if (!hasActiveOrder) {
-    //   paybillHandle(); // Creates new order with active=true
-    //   return;
-    // }
-
-    // // Case 3: Active order exists - navigate to bill page
-    // navigate("/bill");
   };
+
+  const handlePayBill = () => {
+    setConfirmModalOpen(true);
+  };
+
+  const handleCloseConfirmModal =()=>{
+    setConfirmModalOpen(false)
+  }
 
   const subTotalNum = Number(currentOrderList?.subtotal || 0);
 
@@ -477,6 +480,16 @@ const Order = () => {
           )}
           <Box p="5.5vh" backgroundColor={page3BGColor} />
         </Box>
+
+        <ConfirmationComponent
+          open={confirmModalOpen}
+          title="Confirm"
+          message="Are you sure you want to close ordering? Orders won't be accepted until payment."
+          onConfirm={confirmByModal}
+          // onCancel
+          handleClose={handleCloseConfirmModal}
+          loading={loading}
+        />
 
         <ContactModal
           contactModal={contactModal}

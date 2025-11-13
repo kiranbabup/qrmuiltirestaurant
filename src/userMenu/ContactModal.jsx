@@ -74,26 +74,25 @@ const ContactModal = ({
     localStorage.setItem("contactInfo", JSON.stringify({ name, phone }));
 
     // ✅ Re-check active status from localStorage right now
-    let activeExists = false;
-    try {
-      const raw = localStorage.getItem("totalOrdersData");
-      const list = raw ? JSON.parse(raw) : [];
-      activeExists =
-        Array.isArray(list) && list.some((o) => o?.active === true);
-    } catch {}
+    // let activeExists = false;
+    // try {
+    //   const raw = localStorage.getItem("totalOrdersData");
+    //   const list = raw ? JSON.parse(raw) : [];
+    //   activeExists =
+    //     Array.isArray(list) && list.some((o) => o?.active === true);
+    // } catch {}
 
-    setSnackbarMode("success");
-    setsnackbarContent("Information saved successfully");
-    setSuccessSnackbarOpen(true);
-    setLoading(false);
+    // setSnackbarMode("success");
+    // setsnackbarContent("Information saved successfully");
+    // setSuccessSnackbarOpen(true);
+    // setLoading(false);
 
+    // if (!activeExists) {
+    //   // Create the first active order
+    //   return;
+    // }
+    paybillHandle();
     onCloseRegisterModal();
-
-    if (!activeExists) {
-      // Create the first active order
-      paybillHandle();
-      return;
-    }
 
     // If an active order already exists, just go to bill
     navigate("/bill");
