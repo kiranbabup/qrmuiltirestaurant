@@ -82,7 +82,7 @@ const HeaderPannel = ({ HeaderTitle, tableData, onDownloadCurrentList }) => {
                         fullWidth
                         variant="text"
                         color="error"
-                        onClick={onLogoutClick}
+                        onClick={()=>onLogoutClick()}
                         sx={{ justifyContent: "flex-start", textTransform: "none", fontWeight: "bold" }}
                         startIcon={<span style={{ fontSize: 18 }}>↩</span>}
                     >

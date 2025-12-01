@@ -1,0 +1,57 @@
+export const SIDEBAR_WIDTH_EXPANDED = 220;
+export const SIDEBAR_WIDTH_COLLAPSED = 60;
+export const projectBackgroundColor = "#f7f7f7";
+export const layoutDarkGreenColor = "#066451ff";
+export const layoutLightGreenColor = "#35bfa3";
+export const headerIconBGC ="#e4f2d3"
+
+export const countryCodes = [
+  { code: "+1", label: "United States (+1)" },
+  { code: "+7", label: "Russia (+7)" },
+  { code: "+20", label: "Egypt (+20)" },
+  { code: "+27", label: "South Africa (+27)" },
+  { code: "+30", label: "Greece (+30)" },
+  { code: "+31", label: "Netherlands (+31)" },
+  { code: "+32", label: "Belgium (+32)" },
+  { code: "+33", label: "France (+33)" },
+  { code: "+34", label: "Spain (+34)" },
+  { code: "+36", label: "Hungary (+36)" },
+  { code: "+39", label: "Italy (+39)" },
+  { code: "+40", label: "Romania (+40)" },
+  { code: "+44", label: "United Kingdom (+44)" },
+  { code: "+49", label: "Germany (+49)" },
+  { code: "+52", label: "Mexico (+52)" },
+  { code: "+53", label: "Cuba (+53)" },
+  { code: "+54", label: "Argentina (+54)" },
+  { code: "+55", label: "Brazil (+55)" },
+  { code: "+57", label: "Colombia (+57)" },
+  { code: "+60", label: "Malaysia (+60)" },
+  { code: "+61", label: "Australia (+61)" },
+  { code: "+62", label: "Indonesia (+62)" },
+  { code: "+63", label: "Philippines (+63)" },
+  { code: "+64", label: "New Zealand (+64)" },
+  { code: "+65", label: "Singapore (+65)" },
+  { code: "+66", label: "Thailand (+66)" },
+  { code: "+81", label: "Japan (+81)" },
+  { code: "+82", label: "South Korea (+82)" },
+  { code: "+84", label: "Vietnam (+84)" },
+  { code: "+86", label: "China (+86)" },
+  { code: "+90", label: "Turkey (+90)" },
+  { code: "+91", label: "India (+91)" },
+  { code: "+92", label: "Pakistan (+92)" },
+  { code: "+93", label: "Afghanistan (+93)" },
+  { code: "+94", label: "Sri Lanka (+94)" },
+  { code: "+98", label: "Iran (+98)" },
+  { code: "+212", label: "Morocco (+212)" },
+  { code: "+213", label: "Algeria (+213)" },
+  { code: "+216", label: "Tunisia (+216)" },
+  { code: "+218", label: "Libya (+218)" },
+  { code: "+351", label: "Portugal (+351)" },
+  { code: "+358", label: "Finland (+358)" },
+  { code: "+353", label: "Ireland (+353)" },
+  { code: "+358", label: "Finland (+358)" },
+  { code: "+971", label: "United Arab Emirates (+971)" },
+  { code: "+972", label: "Israel (+972)" },
+  { code: "+380", label: "Ukraine (+380)" },
+  // add more entries here to cover all countries
+];

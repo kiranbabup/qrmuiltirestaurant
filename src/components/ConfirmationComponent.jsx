@@ -10,6 +10,7 @@ import Typography from "@mui/material/Typography";
 import CloseIcon from "@mui/icons-material/Close";
 import Box from "@mui/material/Box";
 import CircularProgress from "@mui/material/CircularProgress";
+import { layoutDarkGreenColor } from "../data/contents";
 
 const ConfirmationComponent = ({
   open,
@@ -24,6 +25,7 @@ const ConfirmationComponent = ({
   cancelText = "No",
   fullWidth = true,
   maxWidth = "xs",
+  color,
 }) => {
   // const handleClose = () => {
   //   if (onClose) onClose();
@@ -39,7 +41,14 @@ const ConfirmationComponent = ({
       aria-labelledby="confirmation-dialog-title"
     >
       <DialogTitle id="confirmation-dialog-title" sx={{ m: 0, p: 2 }}>
-        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 2 }}>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 2,
+          }}
+        >
           <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
             {title}
           </Typography>
@@ -60,19 +69,29 @@ const ConfirmationComponent = ({
       </DialogContent>
 
       <DialogActions sx={{ px: 2, pb: 2 }}>
-        <Button onClick={handleClose} disabled={loading} color="warning" variant="text" sx={{ textTransform: "none" }}>
+        <Button
+          onClick={handleClose}
+          disabled={loading}
+          variant="text"
+          color="warning"
+          sx={{ textTransform: "none", color: color, ":hover": { color: color && layoutDarkGreenColor } }}
+        >
           {cancelText}
         </Button>
 
         <Button
           variant="contained"
-          color="warning"
           onClick={onConfirm}
+          color="warning"
           disabled={loading}
-          sx={{ textTransform: "none", position: "relative" }}
+          sx={{ textTransform: "none", backgroundColor: color, position: "relative", ":hover": { backgroundColor: color && layoutDarkGreenColor } }}
         >
           {loading && (
-            <CircularProgress size={18} color="inherit" sx={{ position: "absolute", left: 12 }} />
+            <CircularProgress
+              size={18}
+              color="inherit"
+              sx={{ position: "absolute", left: 12 }}
+            />
           )}
           <Box component="span" sx={{ pl: loading ? 2 : 0 }}>
             {confirmText}

@@ -71,20 +71,6 @@ export const dotContainerStyle = {
   padding: "10px 30px",
 };
 
-// const getBoxStyle = (theme, additionalStyles = {}) => ({
-//   boxShadow: "rgba(0, 0, 0, 0.35) 0px 5px 15px",
-//   borderRadius: "10px",
-//   m: 1,
-//   backgroundColor: theme ? '#333' : 'white',
-//   position: "relative",
-//   ml: 5,
-//   ...additionalStyles
-// });
-
-// // Usage in your component
-// <Box sx={getBoxStyle(this.state.theme)} />
-// <Box sx={getBoxStyle(this.state.theme, { padding: 2 })} />
-
 export const footerLocStyle = {
   color: "white",
   maxWidth: "300px",

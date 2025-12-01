@@ -19,7 +19,8 @@ import { useNavigate } from "react-router-dom";
 import LsService, { storageKey } from "../../services/localstorage";
 import { formatToINR } from "../../data/functions";
 import SmallScreenError from "../../components/panelComponents/SmallScreenError";
-import { lrgScreenStyle } from "../../components/panelComponents/panelStyles";
+import { headerBoxStyle, lrgScreenStyle, rightInnerBoxStyle } from "../../components/panelComponents/panelStyles";
+import MainNavHeader from "../../components/panelComponents/MainNavHeader";
 
 const COLORS = ["green", "red"];
 
@@ -56,73 +57,49 @@ const SuperAdminDashboard = () => {
     {
       HeadTitle: "Total Items",
       IconCompo: LocalMallIcon,
-      Value: counts.totalProducts || 0,
+      Value: counts?.totalProducts ? counts?.totalProducts : 0,
       navpath: "/items",
     },
     {
       HeadTitle: "Total Staff",
       IconCompo: SupervisorAccountIcon,
-      Value: counts.totalUsers || 0,
+      Value: counts?.totalUsers ? counts?.totalUsers : 0,
       navpath: "/users_management",
-    },
-    {
-      HeadTitle: "Total Customers",
-      IconCompo: SupervisorAccountIcon,
-      Value: counts.totalCustomers || 0,
-      navpath: "/billings",
     },
     {
       HeadTitle: "Total Orders",
       IconCompo: TrackChangesIcon,
-      Value: counts.totalOrders || 0,
+      Value: counts?.totalOrders ? counts?.totalOrders : 0,
       navpath: "/billings",
     },
     {
       HeadTitle: "Total Categories",
       IconCompo: CategoryRoundedIcon,
-      Value: counts.categoriesCount || 0,
+      Value: counts?.categoriesCount ? counts?.categoriesCount : 0,
       navpath: "/categories",
     },
     {
-      HeadTitle: "Total Suppliers",
-      IconCompo: SupervisorAccountIcon,
-      Value: counts.suppliersCount || 0,
-      navpath: "/suppliers",
-    },
-    {
-      HeadTitle: "Total Low Stock Products",
-      IconCompo: BookmarkRemoveIcon,
-      Value: counts.lowStockProducts || 0,
-      navpath: "/products",
-    },
-    // {
-    //   HeadTitle: "Total Out of Stock Products",
-    //   IconCompo: DangerousIcon,
-    //   Value: counts.outOfStockProducts || 0,
-    //   navpath: "/products",
-    // },
-    {
       HeadTitle: "Total Sales",
       IconCompo: ShowChartIcon,
-      Value: `₹${formatToINR(counts.totalSales)}` || 0,
+      Value: counts?.totalSales ? `₹${formatToINR(counts?.totalSales)}` : 0,
       navpath: "/billings",
     },
     {
       HeadTitle: "Daily Sales",
       IconCompo: TrendingDownRoundedIcon,
-      Value: `₹${formatToINR(counts.todaySales)}` || 0,
+      Value: counts?.todaySales ? `₹${formatToINR(counts?.todaySales)}` : 0,
       navpath: "/billings",
     },
     {
       HeadTitle: "Total Weekly Sales",
       IconCompo: TrendingDownRoundedIcon,
-      Value: `₹${formatToINR(counts.weekSales)}` || 0,
+      Value: counts?.weekSales ? `₹${formatToINR(counts?.weekSales)}` : 0,
       navpath: "/billings",
     },
     {
       HeadTitle: "Total Monthly Sales",
       IconCompo: TrendingDownRoundedIcon,
-      Value: `₹${formatToINR(counts.monthSales)}` || 0,
+      Value: counts?.monthSales ? `₹${formatToINR(counts?.monthSales)}` : 0,
       navpath: "/billings",
     },
   ];
@@ -136,53 +113,45 @@ const SuperAdminDashboard = () => {
     <Box>
       {/* Large screen view */}
       <Box sx={lrgScreenStyle}>
-        {/* left panel */}
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "start",
-            width: "18vw",
-            maxHeight: "100vh",
-            mx: "8px",
-          }}
-        >
-          <LeftPannel HeaderTitle="Super Admin" />
+        <Box sx={headerBoxStyle}>
+          <MainNavHeader
+            headerTitle="Super Admin Dashboard"
+            headerNavStartTitle="Home / Super Admin Dashboard"
+            homeNavigate=""
+            headerNavEndTitle=""
+          />
         </Box>
 
-        {/* right panel*/}
-        <Box
-          sx={{
-            width: "calc( 100vw - 20vw )",
-            display: "flex",
-            flexDirection: "column",
-            height: "97vh",
-          }}
-        >
-          <HeaderPannel HeaderTitle="Create Restaurant" />
+        <Box sx={rightInnerBoxStyle}>
           <Box
             sx={{
-              overflowY: "auto",
-              "&::-webkit-scrollbar": { width: 0, height: 0 },
-              scrollbarWidth: "none",
-              msOverflowStyle: "none",
+              width: "96%",
+              p: 2,
             }}
           >
-            <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap", p:1 }}>
-              {itemValues.map((item, idx) => (
-                <CountCard
-                  key={idx}
-                  HeadTitle={item.HeadTitle}
-                  IconCompo={item.IconCompo}
-                  Value={item.Value}
-                  Navpath={item.navpath}
-                />
-              ))}
-            </Box>
+            <Box
+              sx={{
+                overflowY: "auto",
+                "&::-webkit-scrollbar": { width: 0, height: 0 },
+                scrollbarWidth: "none",
+                msOverflowStyle: "none",
+              }}
+            >
+              <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap", p: 1 }}>
+                {itemValues.map((item, idx) => (
+                  <CountCard
+                    key={idx}
+                    HeadTitle={item.HeadTitle}
+                    IconCompo={item.IconCompo}
+                    Value={item.Value}
+                    Navpath={item.navpath}
+                  />
+                ))}
+              </Box>
 
-            {/* <Box sx={{ display: "flex", gap: 2, pt: 4, pb: 4 }}> */}
+              {/* <Box sx={{ display: "flex", gap: 2, pt: 4, pb: 4 }}> */}
 
-            {/* <Box sx={{
+              {/* <Box sx={{
               width: 400, height: 300, mt: 4, borderRadius: "10px",
               boxShadow: "rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 2px 6px 2px",
             }}>
@@ -207,8 +176,8 @@ const SuperAdminDashboard = () => {
                 </PieChart>
               </ResponsiveContainer>
             </Box> */}
-            {/* Payment Received Graph */}
-            {/* <Box sx={{ width: 400, height: 300, borderRadius: "10px", boxShadow: "rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 2px 6px 2px", p: 2 }}>
+              {/* Payment Received Graph */}
+              {/* <Box sx={{ width: 400, height: 300, borderRadius: "10px", boxShadow: "rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 2px 6px 2px", p: 2 }}>
               <Typography variant="h6" align="center" sx={{ mb: 2 }}>Payment Received</Typography>
               <ResponsiveContainer width="100%" height="85%">
                 <BarChart data={paymentReceivedGraph}>
@@ -220,8 +189,8 @@ const SuperAdminDashboard = () => {
                 </BarChart>
               </ResponsiveContainer>
             </Box> */}
-            {/* Withdraw Requested Graph */}
-            {/* <Box sx={{ width: 400, height: 300, borderRadius: "10px", boxShadow: "rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 2px 6px 2px", p: 2 }}>
+              {/* Withdraw Requested Graph */}
+              {/* <Box sx={{ width: 400, height: 300, borderRadius: "10px", boxShadow: "rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 2px 6px 2px", p: 2 }}>
               <Typography variant="h6" align="center" sx={{ mb: 2 }}>Withdraw Requested</Typography>
               <ResponsiveContainer width="100%" height="85%">
                 <BarChart data={withdrawRequestedGraph}>
@@ -233,16 +202,10 @@ const SuperAdminDashboard = () => {
                 </BarChart>
               </ResponsiveContainer>
             </Box> */}
-            {/* </Box> */}
+              {/* </Box> */}
+            </Box>
           </Box>
         </Box>
-
-        {/* <SnackbarCompo
-          handleSnackbarClose={handleSnackbarClose}
-          successSnackbarOpen={successSnackbarOpen}
-          snackbarContent={snackbarContent}
-          snackbarMode={snackbarMode}
-        /> */}
       </Box>
 
       {/* Mobile View warning*/}

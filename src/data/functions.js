@@ -1,19 +1,20 @@
 import { Button, Card } from "@mui/material";
 import { styled } from "@mui/material/styles";
+import { useEffect, useState } from "react";
 import * as XLSX from "xlsx";
 
 const today = new Date();
 export const date = today.toLocaleDateString();
 export const time = today.toLocaleTimeString();
-  
+
 export const onDownloadCurrentList = (filename, tableData) => {
-        // Remove unwanted fields if needed, or just export as is
-        const exportData = tableData.map(({ id, ...rest }) => rest); // remove 'id' if not needed
-        const worksheet = XLSX.utils.json_to_sheet(exportData);
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, `${filename}`);
-        XLSX.writeFile(workbook, `${filename}.xlsx`);
-    };
+  // Remove unwanted fields if needed, or just export as is
+  const exportData = tableData.map(({ id, ...rest }) => rest); // remove 'id' if not needed
+  const worksheet = XLSX.utils.json_to_sheet(exportData);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, `${filename}`);
+  XLSX.writeFile(workbook, `${filename}.xlsx`);
+};
 
 export const GlassCard = styled(Card)(({ theme }) => ({
   background: "rgba(255,255,255,0.7)",
@@ -61,40 +62,45 @@ export const PaymentButton = styled(Button)(({ theme, selected }) => ({
 }));
 
 export const formatToINR = (number) => {
-    return new Intl.NumberFormat("en-IN", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(number);
-  };
+  return new Intl.NumberFormat("en-IN", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(number);
+};
 
+export function useHasVerticalScroll() {
+  const [hasScroll, setHasScroll] = useState(false);
 
-    // 0:    cart    :    
-    //     Array(4)
-    //         0:    
-    //             barcode    :    "123456789"
-    //             batch_number    :    "18082025"
-    //             cgst    :    1
-    //             combo_item    :    false
-    //             description    :    ""
-    //             name    :    "Moong dal pro"
-    //             price    :    120
-    //             quantity    :    9
-    //             sgst    :    1
-    //             [[Prototype]]:    Object
-    //         1:    { barcode: '123456789', name: 'Moong dal pro', description: '', price: 255, quantity: 1, … }
-    //         2:    { barcode: '8904236200918', name: 'Fish seeds', description: '', price: 255, quantity: 1, … }
-    //         3:    { barcode: 'qwertyu1234', name: 'VERMECELLI', description: '', price: 100, quantity: 7, … }
-    //         length    :    4
-    //         [[Prototype]]:    Array(0)
-    //         customerDetails    :    
-    //         customerMobile    :    "6303442696"
-    //         customerName    :    "Dani Meenakshi "
-    //         [[Prototype]]:    Object
-    //         invoice_number    :    "INV-11"
-    //         order_date    :    "21/8/2025"
-    //         order_id    :    11
-    //         order_time    :    "05:19 pm"
-    //         paymentMethod    :    "cash"
-    //         total    :    2035
-    //         user_id    :    6
-    //         user_name    :    "MohanVsp"
+  useEffect(() => {
+    const checkScroll = () => {
+      setHasScroll(
+        document.documentElement.scrollHeight >
+        document.documentElement.clientHeight
+      );
+    };
+
+    checkScroll(); // run once on mount
+    window.addEventListener("resize", checkScroll);
+    window.addEventListener("scroll", checkScroll);
+
+    return () => {
+      window.removeEventListener("resize", checkScroll);
+      window.removeEventListener("scroll", checkScroll);
+    };
+  }, []);
+
+  return hasScroll;
+}
+
+export const minDobStr = "1935-01-01";
+export const computeMaxDobStr = () => {
+  const d = new Date();
+  d.setFullYear(d.getFullYear() - 18);
+  // require strictly older than 18 years -> subtract one day
+  d.setDate(d.getDate() - 1);
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
+};
+export const maxDobStr = computeMaxDobStr();

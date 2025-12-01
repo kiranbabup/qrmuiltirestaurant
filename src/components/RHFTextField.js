@@ -18,6 +18,8 @@ export default function RHFTextField(props) {
     onChange,
     InputLabelProps,
     inputProps,
+    placeholder,
+    backgroundColor,
     type,
     ...other
   } = props;
@@ -44,6 +46,9 @@ export default function RHFTextField(props) {
           {...field}
           fullWidth
           size="small"
+          placeholder={placeholder}
+          disabled={loading}
+          sx={{backgroundColor:backgroundColor}}
           value={
             typeof field.value === "number" && field.value === 0
               ? ""

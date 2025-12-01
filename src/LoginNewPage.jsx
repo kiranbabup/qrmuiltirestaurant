@@ -1,3 +1,4 @@
+// LoginPage.jsx
 import React, { useEffect, useState } from "react";
 import {
   Box,
@@ -11,45 +12,31 @@ import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import companyLogo from "./data/images/invposlogo.png";
 import sendOtpimg from "./data/images/Loginicon.png";
+import loginBg from "./data/images/login-bg.png";
 import "./App.css";
 import LsService, { storageKey } from "./services/localstorage";
-import { login } from "./services/api";
+import { loginDNR } from "./services/api";
+import { layoutDarkGreenColor } from "./data/contents";
 
-// CASE 1: Super Admin bypass by Login ID
-const SUPER_ADMIN_USER_ID = "qrsuperadmin1";
-// If you want a password for bypass, add this and check it too:
-const SUPER_ADMIN_PASSWORD = "qrsuperadmin@123";
-
-const LoginPage = () => {
+const LoginNewPage = () => {
   const [loginId, setLoginId] = useState("");
-  const [pwd, setPwd] = useState("");
+  const [password, setPassword] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
   const navigate = useNavigate();
+
   const user = LsService.getItem(storageKey);
 
-  const routeForRole = (role) => {
-    switch (role) {
-      case "super_admin":
-        return "/super_admin";
-      case "restaurant_admin":
-        return "/restaurant-admin";
-      case "manager":
-        return "/restaurant-manager";
-      case "staff":
-        return "/staff";
-      case "kitchen_chef":
-        return "/restaurant-kitchen-chef";
-      default:
-        return "/";
-    }
-  };
-
   useEffect(() => {
-    if (!user) return;
-    const path = routeForRole(user.role);
-    if (path) navigate(path);
+    // console.log(user);
+    if (user) {
+      if (user.role === "dnr_super_admin") {
+        navigate("/dnr_super_admin");
+      }
+    } else {
+      return;
+    }
   }, [user, navigate]);
 
   const handleTogglePasswordVisibility = () => {
@@ -58,47 +45,40 @@ const LoginPage = () => {
 
   const handleLogin = async () => {
     setErrorMsg("");
-
-    // ===== CASE 1: Super Admin bypass =====
-    if (loginId.trim() === SUPER_ADMIN_USER_ID && pwd === SUPER_ADMIN_PASSWORD) {
-      LsService.setItem(storageKey, {
-        username: "Super Admin",
-        role: "super_admin",
-      });
-      navigate(routeForRole("super_admin"));
-      return;
-    }
-
-    // ===== CASE 2: Normal API login =====
     try {
-      const response = await login({ username: loginId, password: pwd });
-      const { role, restaurant_code, is_active, restaurant_id, user_id } =
-        (response && response.data && response.data.user) || {};
-
-      if (is_active === false) {
-        setErrorMsg("Your account is inactive. Please contact the administrator.");
+      const response = await loginDNR({ phone: loginId, password });
+      console.log(response.data);
+      //   const { token } = response.data;
+      //   const branchDetails = response.data.user.Branch;
+      const { name, phone, status, user_id } = response.data.user;
+      if (!status) {
+        setErrorMsg(
+          "Your account is inactive. Please contact the administrator."
+        );
         return;
       }
-
-      if (!["restaurant_admin", "manager", "staff", "kitchen_chef"].includes(role)) {
-        setErrorMsg("Invalid user type.");
-        return;
-      }
-
-      const payload = { username: loginId, role };
-      if (restaurant_code) payload.restaurant_code = restaurant_code;
-      if (restaurant_id) payload.restaurant_id = restaurant_id;
-      if (user_id) payload.user_id = user_id;
-
-      LsService.setItem(storageKey, payload);
-      navigate(routeForRole(role));
+      LsService.setItem(storageKey,{
+        username: name,
+        role: "dnr_super_admin",
+        phone,
+        user_id
+      });
+      navigate("/dnr_super_admin");
+      //   if (role === "dnr_super_admin") {
+      //   } else {
+      // setErrorMsg("Invalid user type.");
+      //   }
     } catch (error) {
       setErrorMsg("Invalid Login ID or Password or contact Administrator.");
     }
   };
 
   return (
-    <Box sx={{ height: "100vh" }}>
+    <Box
+      sx={{
+        height: "100vh",
+      }}
+    >
       <Box
         component="img"
         alt="Company Logo"
@@ -109,6 +89,9 @@ const LoginPage = () => {
           display: { md: "none", xs: "block" },
           pl: 2,
           paddingTop: "10px",
+          position: "fixed",
+          top: 0,
+          left: 0,
         }}
         onClick={() => navigate("/")}
       />
@@ -118,7 +101,12 @@ const LoginPage = () => {
           display: "flex",
           flexDirection: { xs: "column", md: "row" },
           justifyContent: "start",
-          height: { md: "100vh", xs: "calc(100vh - 68px)" },
+          height: "100vh",
+          width: "100vw",
+          backgroundImage: `url(${loginBg})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
         }}
       >
         {/* left */}
@@ -140,12 +128,15 @@ const LoginPage = () => {
               component="img"
               alt="Company Logo"
               src={companyLogo}
-              sx={{ width: "250px", cursor: "pointer" }}
+              sx={{
+                width: "250px",
+                // ml: 2,
+                cursor: "pointer",
+              }}
               onClick={() => navigate("/")}
             />
           </Box>
         </Box>
-
         {/* right */}
         <Box
           sx={{
@@ -155,27 +146,39 @@ const LoginPage = () => {
             flexDirection: "column",
             alignItems: "center",
             justifyContent: "center",
-            backgroundColor: { md: "#577fd8d9" },
+            // backgroundColor: { md: "#577fd8d9" },
             height: "100%",
           }}
         >
-          <Box sx={{ width: { md: "50%" } }}>
+          <Box
+            sx={{
+              width: { md: "50%" },
+              p: 2,
+              bgcolor: "white",
+              boxShadow: 2,
+              borderRadius: "10px",
+            }}
+          >
             <Box sx={{ display: "flex", justifyContent: "center" }}>
               <Box
                 component="img"
                 alt="otp page"
                 src={sendOtpimg}
-                sx={{ width: "130px", height: "140px", cursor: "pointer" }}
+                sx={{
+                  //   width: "130px",
+                  width: { xs: "100px", md: "130px" },
+                  height: { xs: "110px", md: "140px" },
+                  cursor: "pointer",
+                }}
               />
             </Box>
-
             <Typography
               gutterBottom
               sx={{
-                fontSize: { xs: "1.5rem", md: "2.5rem" },
+                fontSize: { xs: "1.4rem", md: "2.5rem" },
                 fontWeight: "bold",
                 textAlign: "center",
-                color: { md: "white" },
+                color: { md: layoutDarkGreenColor },
               }}
             >
               Login Now !
@@ -191,6 +194,7 @@ const LoginPage = () => {
               inputProps={{
                 maxLength: 30,
                 style: { textAlign: "center", fontWeight: "bold" },
+                // sx: { color: { md: "white" } },
               }}
             />
 
@@ -199,34 +203,39 @@ const LoginPage = () => {
               variant="outlined"
               label="Password"
               type={showPassword ? "text" : "password"}
-              value={pwd}
-              onChange={(e) => setPwd(e.target.value)}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               sx={{ mb: 2 }}
               inputProps={{
-                maxLength: 40,
+                maxLength: 15,
                 style: { textAlign: "center", fontWeight: "bold" },
+                // sx: { color: { md: "white" } },
               }}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
-                    <IconButton onClick={handleTogglePasswordVisibility} edge="end">
+                    <IconButton
+                      onClick={handleTogglePasswordVisibility}
+                      edge="end"
+                    >
                       {showPassword ? <VisibilityOff /> : <Visibility />}
                     </IconButton>
                   </InputAdornment>
                 ),
               }}
               onKeyDown={(e) => {
-                if (e.key === "Enter") handleLogin();
+                if (e.key === "Enter") {
+                  handleLogin();
+                }
               }}
             />
 
-            {errorMsg ? (
+            {errorMsg && (
               <Typography color="error" sx={{ mb: 2 }}>
                 {errorMsg}
               </Typography>
-            ) : (
-              <Box p={2.5} />
             )}
+            {!errorMsg && <Box p={2.5} />}
 
             <Button
               variant="contained"
@@ -234,7 +243,7 @@ const LoginPage = () => {
               type="submit"
               color="primary"
               fullWidth
-              onClick={handleLogin}
+              onClick={() => handleLogin()}
             >
               Login
             </Button>
@@ -245,4 +254,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default LoginNewPage;

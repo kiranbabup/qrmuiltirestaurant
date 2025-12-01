@@ -1,4 +1,3 @@
-import React, { useEffect } from "react";
 import belloso from "../data/images/belloso.png";
 import { Box, Button } from "@mui/material";
 import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";
@@ -136,7 +135,7 @@ const Page1 = () => {
   );
 };
 
-const styles = {
+export const styles = {
   page: {
     minHeight: "100vh",
     width: "100%",

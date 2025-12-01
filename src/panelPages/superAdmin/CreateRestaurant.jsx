@@ -40,7 +40,7 @@ const defaultValues = {
   // locationData
   tax_id: "",
   tax: "",
-  subscription_tier: "basic",
+  subscription_tier: "basic", // premium
   no_of_tables: "",
   subscription_expires_at: "",
 };

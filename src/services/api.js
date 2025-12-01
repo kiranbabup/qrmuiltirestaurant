@@ -1,6 +1,7 @@
 // api.js
 import axios from 'axios'
 
+// DRN
 export const baseURL = 'https://api-multi-qr.invtechnologies.in/'
 // export const baseURL = 'http://192.168.0.103:1537/'
 
@@ -8,6 +9,12 @@ const api = axios.create({
   baseURL,
   headers: { 'Content-Type': 'application/json', },
 })
+
+// QR Restaurent
+// login API
+export const login = (data) =>
+  api.post('login_pos', data);
+
 
 // users menu API's start
 export const fetchCategoriesById = (id) =>
@@ -36,17 +43,13 @@ export const fetchTodayOrders = (data) =>
 export const payBill = (data) =>
   api.put('pay-bill', data)
 
-export const getOrderDetailsById =(id) =>
+export const getOrderDetailsById = (id) =>
   api.get(`get-order-details/${id}`);
 
-export const confirmBill =(id, payload) =>
+export const confirmBill = (id, payload) =>
   api.patch(`confirm-bill/${id}`, payload);
 
 // users menu API's end
-
-// login API
-export const login = (data) =>
-  api.post('login_pos', data);
 
 // super admin api's start
 // create or post-data API's
