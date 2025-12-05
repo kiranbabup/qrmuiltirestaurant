@@ -27,7 +27,7 @@ const Cart = () => {
   }, []);
 
   const viewClick = () => {
-    console.log("in orders");
+    // console.log("in orders");
   };
 
   const viewOrderedItems = () => {

@@ -952,7 +952,7 @@ const StepThreeForm = ({ onPrev }) => {
     const stepThree = getLS("reg_rest_three") || {};
 
     const rest_reg_data = [stepOne, stepTwo, stepThree];
-    console.log(rest_reg_data);
+    // console.log(rest_reg_data);
     // saveLS("rest_reg_data", rest_reg_data);
 
     const payload = {
@@ -979,7 +979,7 @@ const StepThreeForm = ({ onPrev }) => {
       },
     };
     try {
-      console.log(payload);
+      // console.log(payload);
       // Merge with existing saved list instead of replacing
       const existing = getLS("rest_reg_data");
       let newList = [];

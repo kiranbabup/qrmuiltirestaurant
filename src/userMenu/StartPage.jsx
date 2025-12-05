@@ -15,7 +15,7 @@ const StartPage = () => {
   return (
     <Box>
       {/* Large screen warning */}
-      <Box
+      {/* <Box
         sx={{
           display: { xs: "none", md: "flex" },
           width: "100vw",
@@ -23,12 +23,26 @@ const StartPage = () => {
           justifyContent: "center",
           alignItems: "center",
           fontWeight: "bold",
-          textAlign:"center",
+          textAlign: "center",
+          flexDirection: "column",
+          gap: 1,
         }}
       >
-        Not compatible with large screens. Please use Mobile or smaller screen
-        devices.
-      </Box>
+        <Typography>
+          Not compatible with large screens. Please use mobile or smaller-screen devices.
+        </Typography>
+        <Typography>
+          Or if you are not a customer,{" "}
+          <Button
+            variant="text"
+            onClick={() => navigate("/login")}
+            sx={{ textTransform: "none", fontWeight: "bold", ml: 0.5 }}
+          >
+            Click Me
+          </Button>{" "}
+          to login.
+        </Typography>
+       </Box> */}
 
       {/* Mobile View */}
       <Box sx={{ width: "100vw", height:"100vh", display: { xs: "flex", md: "none" } }}>

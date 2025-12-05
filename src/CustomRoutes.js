@@ -18,19 +18,22 @@ import BillPage from "./userMenu/BillPage";
 import StartPage from "./userMenu/StartPage";
 import RestaurantRegistraionMainPage from "./panelPages/superAdmin/restaurantRegistraion/RestaurantRegistraionMainPage";
 import EmployeeRegistraionOne from "./panelPages/superAdmin/employeeRegistraion/EmployeeRegistraionOne";
+import { useTheme, useMediaQuery } from "@mui/material";
 
 const CustomeRoutes = () => {
+  const theme = useTheme();
+  const isLarge = useMediaQuery(theme.breakpoints.up("md")); // true on md+ screens
 
   return (
     <Routes>
       {/* home */}
-      <Route path="/" element={<Navigate to="/login" />} />
-      {/* <Route path="/" element={<Navigate to="/main" />} /> */}
+      {/* <Route path="/" element={<Navigate to="/login" />} /> */}
+      <Route path="/" element={<Navigate to="/main" />} />
       <Route path="/404" element={<Page404 />} />
 
       <Route path="/login" element={<LoginPage />} />
 
-      <Route path="/main" element={<StartPage />} />
+      <Route path="/main" element={isLarge ? <LoginPage /> : <StartPage />} />
       <Route path="/home/:id" element={<HomePage />} />
       <Route path="/menu" element={<UserMenu />} />
       <Route path="/my_order" element={<UserOrders />} />

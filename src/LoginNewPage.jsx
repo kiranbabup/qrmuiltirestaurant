@@ -10,7 +10,7 @@ import {
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
-import companyLogo from "./data/images/invposlogo.png";
+import companyLogo from "./data/images/QR_menu_logo.png";
 import sendOtpimg from "./data/images/Loginicon.png";
 import loginBg from "./data/images/login-bg.png";
 import "./App.css";
@@ -47,7 +47,7 @@ const LoginNewPage = () => {
     setErrorMsg("");
     try {
       const response = await loginDNR({ phone: loginId, password });
-      console.log(response.data);
+      // console.log(response.data);
       //   const { token } = response.data;
       //   const branchDetails = response.data.user.Branch;
       const { name, phone, status, user_id } = response.data.user;

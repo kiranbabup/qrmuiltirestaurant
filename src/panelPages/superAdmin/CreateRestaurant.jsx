@@ -153,7 +153,7 @@ const CreateRestaurant = () => {
   const fetchSubscriptionsList = async () => {
     try {
       const subscriptions = await fetchSubscriptions();
-      console.log(subscriptions);
+      // console.log(subscriptions);
 
       // setsnackbarContent("Restaurant created Successfully");
       // setSnackbarMode("success");
@@ -206,7 +206,7 @@ const CreateRestaurant = () => {
     };
 
     try {
-      console.log(payload);
+      // console.log(payload);
 
       await createRestaurants(payload);
       setsnackbarContent("Restaurant created Successfully");

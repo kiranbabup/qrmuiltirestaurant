@@ -93,8 +93,8 @@ const Menu = (data) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.log(data?.data?.data);
-    console.log(data?.data?.loc_id);
+    // console.log(data?.data?.data);
+    // console.log(data?.data?.loc_id);
     if (data?.lenght >= 1) {
       localStorage.setItem("menubyloc", JSON.stringify(data?.data?.data));
       localStorage.setItem("locresid", data?.data?.loc_id);

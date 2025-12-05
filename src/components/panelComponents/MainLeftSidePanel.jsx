@@ -36,7 +36,7 @@ import MenuOpenIcon from "@mui/icons-material/MenuOpen";
 import AddBusinessIcon from "@mui/icons-material/AddBusiness";
 import BadgeIcon from "@mui/icons-material/Badge";
 
-import companyLogo from "../../data/images/invposlogo.png";
+import companyLogo from "../../data/images/QR_menu_logo.png";
 import {
   layoutDarkGreenColor,
   layoutLightGreenColor,
@@ -49,7 +49,7 @@ const MainLeftSidePanel = ({ user }) => {
   const [open, setOpen] = useState(true); // sidebar expanded/collapsed
   const [sections, setSections] = useState([]);
   const [openSection, setOpenSection] = useState("");
-  console.log(user);
+  // console.log(user);
   
   const navigate = useNavigate();
   const location = useLocation();

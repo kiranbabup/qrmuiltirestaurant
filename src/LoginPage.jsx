@@ -9,7 +9,7 @@ import {
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
-import companyLogo from "./data/images/invposlogo.png";
+import companyLogo from "./data/images/QR_menu_logo.png";
 import sendOtpimg from "./data/images/Loginicon.png";
 import "./App.css";
 import LsService, { storageKey } from "./services/localstorage";
@@ -17,7 +17,6 @@ import { login } from "./services/api";
 
 // CASE 1: Super Admin bypass by Login ID
 const SUPER_ADMIN_USER_ID = "qrsuperadmin1";
-// If you want a password for bypass, add this and check it too:
 const SUPER_ADMIN_PASSWORD = "qrsuperadmin@123";
 
 const LoginPage = () => {
